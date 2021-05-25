@@ -4,13 +4,16 @@
   "repository": "https://github.com/Promotion-official/bamboo-server.git",
   "author": "sunrabbit123 <qudwls185@naver.com>",
   "license": "apache2.0",
-  "devDependencies": {
-    "ts-node": "^10.0.0",
-    "typescript": "^4.2.4"
-  },
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "koa": "^2.13.1",
+    "koa-logger": "^3.2.1",
     "mongoose": "^5.12.11"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.13.1",
+    "@types/koa__cors": "^3.0.2",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.2.4"
   }
 }
