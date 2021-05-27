@@ -1,8 +1,26 @@
-import Post, { PostRequestForm } from "model/schema/posts";
+import Post, { PostRequestForm, PublicPostFields } from "model/schema/posts";
 import { Context } from "koa";
 import { sendMessage } from "util/discord";
 
-export const getPost = async (ctx: Context): Promise<void> => {};
+interface GetListParam {
+  count: number;
+  cursor: number;
+}
+export const getPosts = async (ctx: Context): Promise<void> => {
+  const data: GetListParam = {
+    count: Number(ctx.query.count),
+    cursor: Number(ctx.query.cursor),
+  };
+  const posts = await Post.getList(data.count, data.cursor);
+  console.log(posts);
+  ctx.status = 200;
+  ctx.body = {
+    posts: posts.map((value): PublicPostFields => value.getPublicFields()),
+    cursor: posts.length > 0 ? posts[posts.length - 1].number : null,
+    hasNext: posts.length === data.count,
+  };
+};
+
 export const writePost = async (ctx: Context): Promise<void> => {
   const body: PostRequestForm = ctx.request.body;
 

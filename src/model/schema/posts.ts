@@ -1,5 +1,15 @@
-import { getModelForClass, prop } from "@typegoose/typegoose";
+import {
+  getModelForClass,
+  prop,
+  DocumentType,
+  modelOptions,
+  arrayProp,
+} from "@typegoose/typegoose";
+import { ModelType } from "@typegoose/typegoose/lib/types";
+
 import { Schema } from "mongoose";
+import * as crypto from "crypto";
+import { Base64 } from "js-base64";
 
 export enum PostStatus {
   Pending = "PENDING",
@@ -8,6 +18,13 @@ export enum PostStatus {
   Deleted = "DELETED",
 }
 
+export class PostHistory {
+  @prop({ required: true, trim: true })
+  public content: string;
+
+  @prop({ required: true })
+  public createdAt: Date;
+}
 export interface PostRequestForm {
   title: string;
   content: string;
@@ -17,12 +34,33 @@ export interface PublicPostFields {
   id: string;
   number?: number;
   title?: string;
+  content: string;
   tag: string;
   FBLink: string;
-  createdAt: number;
+  createdAt: Date;
   status: string;
 }
-export class _Post {
+export interface PostAuthorFields extends PublicPostFields {
+  hash: string;
+}
+
+@modelOptions({
+  schemaOptions: {
+    timestamps: true,
+    collection: "_posts",
+    toObject: {
+      virtuals: true,
+    },
+    toJSON: {
+      virtuals: true,
+      transform: (doc, ret): unknown => {
+        ret.createdAt = doc.createdAt.getTime();
+        return ret;
+      },
+    },
+  },
+})
+export class Post {
   public _id: Schema.Types.ObjectId;
   public createdAt: Date;
 
@@ -47,11 +85,83 @@ export class _Post {
   @prop()
   public FBLink?: string;
 
+  @arrayProp({ items: PostHistory, default: [] })
+  public history: PostHistory[];
+  @prop({
+    default: (): string => {
+      return crypto
+        .createHash("sha256")
+        .update(Date.now().toString())
+        .digest("hex");
+    },
+  })
+  public hash: string;
+
+  public get cursorId(): string {
+    return Base64.encode(this._id.toString());
+  }
   public get id(): Schema.Types.ObjectId {
     return this._id;
   }
+
+  public async edit(
+    this: DocumentType<Post>,
+    newTitle?: string,
+    newContent?: string,
+    newFbLink?: string
+  ): Promise<DocumentType<Post>> {
+    this.history.push({ content: this.content, createdAt: new Date() });
+    this.title = newTitle ?? this.title;
+    this.content = newContent ?? this.content;
+    this.FBLink = newFbLink ?? this.FBLink;
+
+    return await this.save();
+  }
+
+  public getAuthorFields(this: DocumentType<Post>): PostAuthorFields {
+    return {
+      id: this.id,
+      number: this.number,
+      title: this.title,
+      content: this.content,
+      tag: this.tag,
+      FBLink: this.FBLink,
+      createdAt: this.createdAt,
+      status: this.status,
+      hash: this.hash,
+    };
+  }
+  public getPublicFields(this: DocumentType<Post>): PublicPostFields {
+    return {
+      id: this.id,
+      number: this.number,
+      title: this.title,
+      content: this.content,
+      tag: this.tag,
+      FBLink: this.FBLink,
+      createdAt: this.createdAt,
+      status: this.status,
+    };
+  }
+  public static async getList(
+    this: ModelType<Post> & typeof Post,
+    count: number = 10,
+    cursor: number = 0
+  ): Promise<Array<DocumentType<Post>>> {
+    const condition = {
+      number: { $lt: cursor ?? 0 },
+      status: PostStatus.Pending,
+    };
+
+    if (cursor === 0) {
+      delete condition.number;
+    }
+    const posts = await this.find(condition)
+      .sort({ number: -1 })
+      .limit(count)
+      .exec();
+    return posts;
+  }
 }
 
-const Post = getModelForClass(_Post);
-
-export default Post;
+export default getModelForClass(Post);
