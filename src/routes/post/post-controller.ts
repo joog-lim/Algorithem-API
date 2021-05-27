@@ -28,6 +28,7 @@ export const writePost = async (ctx: Context): Promise<void> => {
     title: body.title,
     content: body.content,
     tag: body.tag,
+    createdAt: new Date(),
   }).save();
 
   ctx.status = 201;

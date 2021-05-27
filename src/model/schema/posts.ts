@@ -4,6 +4,7 @@ import {
   DocumentType,
   modelOptions,
   arrayProp,
+  mapProp,
 } from "@typegoose/typegoose";
 import { ModelType } from "@typegoose/typegoose/lib/types";
 
@@ -37,7 +38,7 @@ export interface PublicPostFields {
   content: string;
   tag: string;
   FBLink: string;
-  createdAt: Date;
+  createdAt: number;
   status: string;
 }
 export interface PostAuthorFields extends PublicPostFields {
@@ -62,6 +63,8 @@ export interface PostAuthorFields extends PublicPostFields {
 })
 export class Post {
   public _id: Schema.Types.ObjectId;
+
+  @prop({ default: new Date() })
   public createdAt: Date;
 
   @prop()
@@ -85,8 +88,9 @@ export class Post {
   @prop()
   public FBLink?: string;
 
-  @arrayProp({ items: PostHistory, default: [] })
+  @prop({ default: [] })
   public history: PostHistory[];
+
   @prop({
     default: (): string => {
       return crypto
@@ -104,20 +108,6 @@ export class Post {
     return this._id;
   }
 
-  public async edit(
-    this: DocumentType<Post>,
-    newTitle?: string,
-    newContent?: string,
-    newFbLink?: string
-  ): Promise<DocumentType<Post>> {
-    this.history.push({ content: this.content, createdAt: new Date() });
-    this.title = newTitle ?? this.title;
-    this.content = newContent ?? this.content;
-    this.FBLink = newFbLink ?? this.FBLink;
-
-    return await this.save();
-  }
-
   public getAuthorFields(this: DocumentType<Post>): PostAuthorFields {
     return {
       id: this.id,
@@ -126,7 +116,7 @@ export class Post {
       content: this.content,
       tag: this.tag,
       FBLink: this.FBLink,
-      createdAt: this.createdAt,
+      createdAt: this.createdAt.getTime(),
       status: this.status,
       hash: this.hash,
     };
@@ -139,7 +129,7 @@ export class Post {
       content: this.content,
       tag: this.tag,
       FBLink: this.FBLink,
-      createdAt: this.createdAt,
+      createdAt: this.createdAt.getTime(),
       status: this.status,
     };
   }
