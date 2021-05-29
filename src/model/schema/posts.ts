@@ -1,5 +1,5 @@
-import { getModelForClass, prop } from "@typegoose/typegoose";
-import { Schema } from "mongoose";
+import { getModelForClass, prop, DocumentType } from "@typegoose/typegoose";
+import { Schema, Document, model } from "mongoose";
 
 export enum PostStatus {
   Pending = "PENDING",
@@ -22,9 +22,10 @@ export interface PublicPostFields {
   createdAt: number;
   status: string;
 }
+
 export class _Post {
   public _id: Schema.Types.ObjectId;
-  public createdAt: Date;
+  public createdAt: Date = new Date();
 
   @prop()
   public number?: number;
@@ -49,6 +50,33 @@ export class _Post {
 
   public get id(): Schema.Types.ObjectId {
     return this._id;
+  }
+
+  public async setAccepted(
+    this: DocumentType<_Post>
+  ): Promise<DocumentType<_Post>> {
+    this.status = PostStatus.Accepted;
+    const lastPost = (
+      await Post.find().sort({ number: -1 }).limit(1).exec()
+    )[0];
+    this.number = (lastPost.number ?? 0) + 1;
+    return await this.save();
+  }
+
+  public async setRejected(
+    this: DocumentType<_Post>,
+    reason: string
+  ): Promise<DocumentType<_Post>> {
+    this.status = PostStatus.Rejected;
+    this.reason = reason;
+    return await this.save();
+  }
+
+  public async setDeleted(
+    this: DocumentType<_Post>
+  ): Promise<DocumentType<_Post>> {
+    this.status = PostStatus.Deleted;
+    return await this.save();
   }
 }
 
