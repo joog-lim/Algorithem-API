@@ -1,10 +1,10 @@
 import * as Router from "koa-router";
 
-import { getPost, writePost } from "./post-controller";
+import { getPosts, writePost } from "./post-controller";
 
 const post = new Router();
 
-post.get("/", getPost);
+post.get("/", getPosts);
 post.post("/", writePost);
 
 export default post;

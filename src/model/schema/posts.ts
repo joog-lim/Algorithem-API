@@ -2,9 +2,11 @@ import {
   getModelForClass,
   prop,
   DocumentType,
-  modelOptions,
+  modelOptions
 } from "@typegoose/typegoose";
 import { Schema } from "mongoose";
+import * as crypto from "crypto";
+import { Base64 } from "js-base64";
 
 export enum PostStatus {
   Pending = "PENDING",
@@ -13,6 +15,13 @@ export enum PostStatus {
   Deleted = "DELETED",
 }
 
+export class PostHistory {
+  @prop({ required: true, trim: true })
+  public content: string;
+
+  @prop({ required: true })
+  public createdAt: Date;
+}
 export interface PostRequestForm {
   title: string;
   content: string;
@@ -27,6 +36,9 @@ export interface PublicPostFields {
   FBLink: string;
   createdAt: number;
   status: string;
+}
+export interface PostAuthorFields extends PublicPostFields {
+  hash: string;
 }
 
 @modelOptions({
@@ -45,9 +57,11 @@ export interface PublicPostFields {
     },
   },
 })
-export class _Post {
+export class Post {
   public _id: Schema.Types.ObjectId;
-  public createdAt: Date = new Date();
+
+  @prop({ default: new Date() })
+  public createdAt: Date;
 
   @prop()
   public number?: number;
@@ -70,6 +84,22 @@ export class _Post {
   @prop()
   public FBLink?: string;
 
+  @prop({ default: [] })
+  public history: PostHistory[];
+
+  @prop({
+    default: (): string => {
+      return crypto
+        .createHash("sha256")
+        .update(Date.now().toString())
+        .digest("hex");
+    },
+  })
+  public hash: string;
+
+  public get cursorId(): string {
+    return Base64.encode(this._id.toString());
+  }
   public get id(): Schema.Types.ObjectId {
     return this._id;
   }
@@ -116,6 +146,50 @@ export class _Post {
   }
 }
 
-const Post = getModelForClass(_Post);
+  public getAuthorFields(this: DocumentType<Post>): PostAuthorFields {
+    return {
+      id: this.id,
+      number: this.number,
+      title: this.title,
+      content: this.content,
+      tag: this.tag,
+      FBLink: this.FBLink,
+      createdAt: this.createdAt.getTime(),
+      status: this.status,
+      hash: this.hash,
+    };
+  }
+  public getPublicFields(this: DocumentType<Post>): PublicPostFields {
+    return {
+      id: this.id,
+      number: this.number,
+      title: this.title,
+      content: this.content,
+      tag: this.tag,
+      FBLink: this.FBLink,
+      createdAt: this.createdAt.getTime(),
+      status: this.status,
+    };
+  }
+  public static async getList(
+    this: ModelType<Post> & typeof Post,
+    count: number = 10,
+    cursor: number = 0
+  ): Promise<Array<DocumentType<Post>>> {
+    const condition = {
+      number: { $lt: cursor ?? 0 },
+      status: PostStatus.Pending,
+    };
 
-export default Post;
+    if (cursor === 0) {
+      delete condition.number;
+    }
+    const posts = await this.find(condition)
+      .sort({ number: -1 })
+      .limit(count)
+      .exec();
+    return posts;
+  }
+}
+
+export default getModelForClass(Post);
