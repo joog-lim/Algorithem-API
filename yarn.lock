@@ -41,7 +41,7 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/node16/-/node16-1.0.1.tgz#a6ca6a9a0ff366af433f42f5f0e124794ff6b8f1"
   integrity sha512-FTgBI767POY/lKNDNbIzgAX6miIDBs6NTCbdlDb8TrWovHsSvaVIZDlTqym29C6UqhzwcJx4CYr+AlrMywA0cA==
 
-"@typegoose/typegoose@^7.6.0":
+"@typegoose/typegoose@^7.2.0":
   version "7.6.0"
   resolved "https://registry.yarnpkg.com/@typegoose/typegoose/-/typegoose-7.6.0.tgz#64327ab5ea0f17405a731433991c5685c1126fc9"
   integrity sha512-m7iz8L52y6bQLGQpPnOwKJQsfpFZkICa0TSiGIlZNy1DLrElj+GZfatQG4Ag5wHZRxhOMaEaBS0iqDGmvtm7Tg==
@@ -207,7 +207,7 @@
     "@types/mongodb" "*"
     "@types/node" "*"
 
-"@types/node@*":
+"@types/node@*", "@types/node@^15.6.1":
   version "15.6.1"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-15.6.1.tgz#32d43390d5c62c5b6ec486a9bc9c59544de39a08"
   integrity sha512-7EIraBEyRHEe7CH+Fm1XvgqU6uwZN8Q7jppJGcqjROMT29qhAuuOxYB1uEY5UMYQKEmA5D+5tBnhdaPXSsLONA==
