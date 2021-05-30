@@ -2,12 +2,8 @@ import {
   getModelForClass,
   prop,
   DocumentType,
-  modelOptions,
-  arrayProp,
-  mapProp,
+  modelOptions
 } from "@typegoose/typegoose";
-import { ModelType } from "@typegoose/typegoose/lib/types";
-
 import { Schema } from "mongoose";
 import * as crypto from "crypto";
 import { Base64 } from "js-base64";
@@ -107,6 +103,48 @@ export class Post {
   public get id(): Schema.Types.ObjectId {
     return this._id;
   }
+
+  public async setAccepted(this: DocumentType<_Post>): Promise<boolean> {
+    try {
+      this.status = PostStatus.Accepted;
+      const lastPost = (
+        await Post.find().sort({ number: -1 }).limit(1).exec()
+      )[0];
+      this.number = (lastPost.number ?? 0) + 1;
+      await this.save();
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+    return true;
+  }
+
+  public async setRejected(
+    this: DocumentType<_Post>,
+    reason: string
+  ): Promise<boolean> {
+    try {
+      this.status = PostStatus.Rejected;
+      this.reason = reason;
+      await this.save();
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+    return true;
+  }
+
+  public async setDeleted(this: DocumentType<_Post>): Promise<boolean> {
+    try {
+      this.status = PostStatus.Deleted;
+      await this.save();
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+    return true;
+  }
+}
 
   public getAuthorFields(this: DocumentType<Post>): PostAuthorFields {
     return {

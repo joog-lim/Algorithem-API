@@ -10,6 +10,13 @@ import * as dotenv from "dotenv";
 
 import router from "routes";
 
+import { setGlobalOptions } from "@typegoose/typegoose";
+setGlobalOptions({
+  globalOptions: {
+    useNewEnum: true,
+  },
+});
+
 const app = new Koa();
 
 dotenv.config();
