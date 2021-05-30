@@ -74,31 +74,45 @@ export class _Post {
     return this._id;
   }
 
-  public async setAccepted(
-    this: DocumentType<_Post>
-  ): Promise<DocumentType<_Post>> {
-    this.status = PostStatus.Accepted;
-    const lastPost = (
-      await Post.find().sort({ number: -1 }).limit(1).exec()
-    )[0];
-    this.number = (lastPost.number ?? 0) + 1;
-    return await this.save();
+  public async setAccepted(this: DocumentType<_Post>): Promise<boolean> {
+    try {
+      this.status = PostStatus.Accepted;
+      const lastPost = (
+        await Post.find().sort({ number: -1 }).limit(1).exec()
+      )[0];
+      this.number = (lastPost.number ?? 0) + 1;
+      await this.save();
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+    return true;
   }
 
   public async setRejected(
     this: DocumentType<_Post>,
     reason: string
-  ): Promise<DocumentType<_Post>> {
-    this.status = PostStatus.Rejected;
-    this.reason = reason;
-    return await this.save();
+  ): Promise<boolean> {
+    try {
+      this.status = PostStatus.Rejected;
+      this.reason = reason;
+      await this.save();
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+    return true;
   }
 
-  public async setDeleted(
-    this: DocumentType<_Post>
-  ): Promise<DocumentType<_Post>> {
-    this.status = PostStatus.Deleted;
-    return await this.save();
+  public async setDeleted(this: DocumentType<_Post>): Promise<boolean> {
+    try {
+      this.status = PostStatus.Deleted;
+      await this.save();
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+    return true;
   }
 }
 
