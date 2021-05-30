@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
-    "@typegoose/typegoose": "^7.6.0",
+    "@typegoose/typegoose": "^7.2.0",
     "@types/koa-json": "^2.0.18",
     "axios": "^0.21.1",
     "cross-env": "^7.0.3",

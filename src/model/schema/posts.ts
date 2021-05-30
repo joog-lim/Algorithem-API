@@ -1,5 +1,10 @@
-import { getModelForClass, prop, DocumentType } from "@typegoose/typegoose";
-import { Schema, Document, model } from "mongoose";
+import {
+  getModelForClass,
+  prop,
+  DocumentType,
+  modelOptions,
+} from "@typegoose/typegoose";
+import { Schema } from "mongoose";
 
 export enum PostStatus {
   Pending = "PENDING",
@@ -17,12 +22,29 @@ export interface PublicPostFields {
   id: string;
   number?: number;
   title?: string;
+  content: string;
   tag: string;
   FBLink: string;
   createdAt: number;
   status: string;
 }
 
+@modelOptions({
+  schemaOptions: {
+    timestamps: true,
+    collection: "_posts",
+    toObject: {
+      virtuals: true,
+    },
+    toJSON: {
+      virtuals: true,
+      transform: (doc, ret): unknown => {
+        ret.createdAt = doc.createdAt.getTime();
+        return ret;
+      },
+    },
+  },
+})
 export class _Post {
   public _id: Schema.Types.ObjectId;
   public createdAt: Date = new Date();
