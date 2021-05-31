@@ -7,6 +7,7 @@ import {
 import { Schema } from "mongoose";
 import * as crypto from "crypto";
 import { Base64 } from "js-base64";
+import { ModelType } from "@typegoose/typegoose/lib/types";
 
 export enum PostStatus {
   Pending = "PENDING",
@@ -104,7 +105,7 @@ export class Post {
     return this._id;
   }
 
-  public async setAccepted(this: DocumentType<_Post>): Promise<boolean> {
+  public async setAccepted(this: DocumentType<Post>): Promise<boolean> {
     try {
       this.status = PostStatus.Accepted;
       const lastPost = (
@@ -120,7 +121,7 @@ export class Post {
   }
 
   public async setRejected(
-    this: DocumentType<_Post>,
+    this: DocumentType<Post>,
     reason: string
   ): Promise<boolean> {
     try {
@@ -134,7 +135,7 @@ export class Post {
     return true;
   }
 
-  public async setDeleted(this: DocumentType<_Post>): Promise<boolean> {
+  public async setDeleted(this: DocumentType<Post>): Promise<boolean> {
     try {
       this.status = PostStatus.Deleted;
       await this.save();
@@ -144,7 +145,6 @@ export class Post {
     }
     return true;
   }
-}
 
   public getAuthorFields(this: DocumentType<Post>): PostAuthorFields {
     return {
@@ -192,4 +192,5 @@ export class Post {
   }
 }
 
-export default getModelForClass(Post);
+const PostModel = getModelForClass(Post);
+export default PostModel
