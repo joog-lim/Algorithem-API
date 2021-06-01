@@ -165,14 +165,12 @@ export class Post {
     count: number = 10,
     cursor: number = 0
   ): Promise<Array<DocumentType<Post>>> {
-    const condition = {
+    const condition = cursor === 0 ? findCondition : {
       number: { $lt: cursor ?? 0 },
       status: PostStatus.Pending,
     };
-
-    if (cursor === 0) {
-      delete condition.number;
-    }
+    // TODO 리팩토링 추후 필요
+    
     const posts = await this.find(condition)
       .sort({ number: -1 })
       .limit(count)
@@ -180,6 +178,8 @@ export class Post {
     return posts;
   }
 }
-
+const findCondition ={
+  status: PostStatus.Pending
+};
 const PostModel = getModelForClass(Post);
 export default PostModel
