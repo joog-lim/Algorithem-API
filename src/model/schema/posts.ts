@@ -15,14 +15,6 @@ export enum PostStatus {
   Rejected = "REJECTED",
   Deleted = "DELETED",
 }
-
-export class PostHistory {
-  @prop({ required: true, trim: true })
-  public content: string;
-
-  @prop({ required: true })
-  public createdAt: Date;
-}
 export interface PostRequestForm {
   title: string;
   content: string;
@@ -31,10 +23,10 @@ export interface PostRequestForm {
 export interface PublicPostFields {
   id: string;
   number?: number;
-  title?: string;
+  title: string;
   content: string;
   tag: string;
-  FBLink: string;
+  FBLink?: string;
   createdAt: number;
   status: string;
 }
@@ -85,9 +77,6 @@ export class Post {
   @prop()
   public FBLink?: string;
 
-  @prop({ default: [] })
-  public history: PostHistory[];
-
   @prop({
     default: (): string => {
       return crypto
@@ -109,7 +98,7 @@ export class Post {
     try {
       this.status = PostStatus.Accepted;
       const lastPost = (
-        await Post.find().sort({ number: -1 }).limit(1).exec()
+        await PostModel.find().sort({ number: -1 }).limit(1).exec()
       )[0];
       this.number = (lastPost.number ?? 0) + 1;
       await this.save();
