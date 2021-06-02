@@ -94,6 +94,19 @@ export class Post {
     return this._id;
   }
 
+  public async edit(
+    this: DocumentType<Post>,
+    newTitle? : string,
+    newContent? : string,
+    newFBLink? : string
+  ): Promise<DocumentType<Post>> {
+    this.title = newTitle ?? this.title;
+    this.content = newContent ?? this.content;
+    this.FBLink = newFBLink ?? this.FBLink;
+    await this.save();
+
+    return this;
+  }
   public async setAccepted(this: DocumentType<Post>): Promise<DocumentType<Post>> {
   
     this.status = PostStatus.Accepted;
