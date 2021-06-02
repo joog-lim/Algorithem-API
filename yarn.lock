@@ -41,10 +41,10 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/node16/-/node16-1.0.1.tgz#a6ca6a9a0ff366af433f42f5f0e124794ff6b8f1"
   integrity sha512-FTgBI767POY/lKNDNbIzgAX6miIDBs6NTCbdlDb8TrWovHsSvaVIZDlTqym29C6UqhzwcJx4CYr+AlrMywA0cA==
 
-"@typegoose/typegoose@^7.2.0":
-  version "7.6.0"
-  resolved "https://registry.yarnpkg.com/@typegoose/typegoose/-/typegoose-7.6.0.tgz#64327ab5ea0f17405a731433991c5685c1126fc9"
-  integrity sha512-m7iz8L52y6bQLGQpPnOwKJQsfpFZkICa0TSiGIlZNy1DLrElj+GZfatQG4Ag5wHZRxhOMaEaBS0iqDGmvtm7Tg==
+"@typegoose/typegoose@^7.6.0":
+  version "7.6.1"
+  resolved "https://registry.yarnpkg.com/@typegoose/typegoose/-/typegoose-7.6.1.tgz#ca2a1f3d069555f925ec58c22c5c4152c8bd3b3a"
+  integrity sha512-ZBm0ZVLm3VlQ+TvoWtAX2ZYTCzCOhlZd0OECwBrB7zWfYcv0v73mzVryPVN6chUsN1ExlL1EusKwYZ8mG7QK8A==
   dependencies:
     lodash "^4.17.20"
     loglevel "^1.7.0"
@@ -983,6 +983,11 @@ isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
+
+js-base64@^3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-3.6.1.tgz#555aae398b74694b4037af1f8a5a6209d170efbe"
+  integrity sha512-Frdq2+tRRGLQUIQOgsIGSCd1VePCS2fsddTG5dTCqR0JHgltXWfsxnY0gIXPoMeRmdom6Oyq+UMOFg5suduOjQ==
 
 json-buffer@3.0.0:
   version "3.0.0"

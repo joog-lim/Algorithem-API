@@ -101,9 +101,8 @@ export class Post {
       await PostModel.find().sort({ number: -1 }).limit(1).exec()
     )[0];
     this.number = (lastPost.number ?? 0) + 1;
-    (await this.save());
+    await this.save();
     return this;
-  
   }
 
   public async setRejected(
