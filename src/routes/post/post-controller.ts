@@ -9,11 +9,10 @@ interface GetListParam {
 
 export const getPosts = async (ctx: Context): Promise<void> => {
   const data: GetListParam = {
-    count: Number(ctx.query.count),
-    cursor: Number(ctx.query.cursor),
+    count: Number(ctx.query.count ?? "10"),
+    cursor: Number(ctx.query.cursor ?? "0"),
   };
   const posts = await Post.getList(data.count, data.cursor);
-  console.log(posts);
   ctx.status = 200;
   ctx.body = {
     posts: posts.map((value): PublicPostFields => value.getPublicFields()),

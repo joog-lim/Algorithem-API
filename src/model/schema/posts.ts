@@ -166,7 +166,7 @@ export class Post {
   ): Promise<Array<DocumentType<Post>>> {
     const condition = cursor === 0 ? findCondition : {
       number: { $lt: cursor ?? 0 },
-      status: PostStatus.Pending,
+      status: PostStatus.Accepted,
     };
     // TODO 리팩토링 추후 필요
     
