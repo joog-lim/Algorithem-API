@@ -94,45 +94,31 @@ export class Post {
     return this._id;
   }
 
-  public async setAccepted(this: DocumentType<Post>): Promise<boolean> {
-    try {
-      this.status = PostStatus.Accepted;
-      const lastPost = (
-        await PostModel.find().sort({ number: -1 }).limit(1).exec()
-      )[0];
-      this.number = (lastPost.number ?? 0) + 1;
-      await this.save();
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-    return true;
+  public async setAccepted(this: DocumentType<Post>): Promise<DocumentType<Post>> {
+  
+    this.status = PostStatus.Accepted;
+    const lastPost = (
+      await PostModel.find().sort({ number: -1 }).limit(1).exec()
+    )[0];
+    this.number = (lastPost.number ?? 0) + 1;
+    await this.save();
+    return this;
   }
 
   public async setRejected(
     this: DocumentType<Post>,
     reason: string
-  ): Promise<boolean> {
-    try {
-      this.status = PostStatus.Rejected;
-      this.reason = reason;
-      await this.save();
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-    return true;
+  ): Promise<DocumentType<Post>> {
+    this.status = PostStatus.Rejected;
+    this.reason = reason;
+    await this.save();
+    return this;
   }
 
-  public async setDeleted(this: DocumentType<Post>): Promise<boolean> {
-    try {
-      this.status = PostStatus.Deleted;
-      await this.save();
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-    return true;
+  public async setDeleted(this: DocumentType<Post>): Promise<DocumentType<Post>> {
+    this.status = PostStatus.Deleted;
+    await this.save();
+    return this;
   }
 
   public getAuthorFields(this: DocumentType<Post>): PostAuthorFields {
