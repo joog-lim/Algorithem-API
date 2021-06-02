@@ -178,7 +178,7 @@ export class Post {
   }
 }
 const findCondition ={
-  status: PostStatus.Pending
+  status: PostStatus.Accepted
 };
 const PostModel = getModelForClass(Post);
 export default PostModel
