@@ -191,7 +191,6 @@ export class Post {
             },
           }
     );
-    console.timeLog(condition);
     const posts = await this.find(condition)
       .sort({ number: -1 })
       .limit(count)
