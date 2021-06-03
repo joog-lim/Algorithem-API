@@ -1,11 +1,12 @@
 import * as Router from "koa-router";
+import { authMiddleware } from "middleware/auth";
 
 import { getPosts, patchPost, writePost } from "./post-controller";
 
 const post = new Router();
 
-post.get("/", getPosts);
+post.get("/", authMiddleware(true), getPosts);
 post.post("/", writePost);
-post.patch("/:id", patchPost);
+post.patch("/:id", authMiddleware(false), patchPost);
 
 export default post;

@@ -12,7 +12,7 @@ import * as dotenv from "dotenv";
 import { setGlobalOptions } from "@typegoose/typegoose";
 
 import router from "routes";
-import { statusCodeVerification } from "middleware/statusCode";
+import { statusCodeVerification } from "middleware/auth";
 setGlobalOptions({
   globalOptions: {
     useNewEnum: true,
