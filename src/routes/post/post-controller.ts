@@ -98,3 +98,24 @@ export const patchPost = async (ctx: Context): Promise<void> => {
   ctx.status = 200;
   ctx.body = result.toJSON();
 };
+
+export const deletePost = async (ctx: Context): Promise<void> => {
+  const isAdmin: boolean = ctx.state.isAdmin;
+  const post = isAdmin
+    ? await Post.findById(ctx.params.arg)
+    : await Post.findOne({ hash: ctx.params.arg });
+  if (post == null) throw new createError.NotFound();
+
+  if (!isAdmin) {
+    await post.setDeleted();
+    await sendMessage(
+      "제보 삭제 요청입니다.",
+      process.env.DISCORD_MANAGEMENT_WEBHOOK
+    );
+  } else {
+    await post.remove();
+  }
+
+  ctx.status = 200;
+  ctx.body = { result: "success" };
+};
