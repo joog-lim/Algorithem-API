@@ -1,11 +1,14 @@
+import { Context } from "koa";
+import * as createError from "http-errors";
+
 import Post, {
   PostRequestForm,
   PostStatus,
   PublicPostFields,
 } from "model/schema/posts";
-import { Context } from "koa";
+
 import { sendMessage } from "util/discord";
-import * as createError from "http-errors";
+import { replaceLtGt } from "util/post";
 
 interface GetListParam {
   count: number;
@@ -15,8 +18,8 @@ interface GetListParam {
 
 export const getPosts = async (ctx: Context): Promise<void> => {
   const data: GetListParam = {
-    count: Number(ctx.query.count ?? "10"),
-    cursor: Number(ctx.query.cursor ?? "0"),
+    count: Number(ctx.query.count),
+    cursor: Number(ctx.query.cursor),
     status: ctx.query.status as PostStatus,
   };
   const posts = await Post.getList(data.count, data.cursor, {
@@ -36,7 +39,7 @@ export const writePost = async (ctx: Context): Promise<void> => {
 
   const result = new Post({
     title: body.title,
-    content: body.content,
+    content: replaceLtGt(body.content),
     tag: body.tag,
     createdAt: new Date(),
   }).save();
@@ -94,25 +97,4 @@ export const patchPost = async (ctx: Context): Promise<void> => {
   }
   ctx.status = 200;
   ctx.body = result.toJSON();
-};
-
-export const deletePost = async (ctx: Context): Promise<void> => {
-  const isAdmin: boolean = ctx.state.isAdmin;
-  const post = isAdmin
-    ? await Post.findById(ctx.params.arg)
-    : await Post.findOne({ hash: ctx.params.arg });
-  if (post == null) throw new createError.NotFound();
-
-  if (!isAdmin) {
-    await post.setDeleted();
-    await sendMessage(
-      "제보 삭제 요청입니다.",
-      process.env.DISCORD_MANAGEMENT_WEBHOOK
-    );
-  } else {
-    await post.remove();
-  }
-
-  ctx.status = 200;
-  ctx.body = { result: "success" };
 };
