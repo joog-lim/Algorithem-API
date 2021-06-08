@@ -4,10 +4,10 @@ import {
   DocumentType,
   modelOptions,
 } from "@typegoose/typegoose";
-import { Schema } from "mongoose";
 import * as crypto from "crypto";
 import { Base64 } from "js-base64";
 import { ModelType } from "@typegoose/typegoose/lib/types";
+import { Types, Schema } from "mongoose";
 
 export enum PostStatus {
   Pending = "PENDING",
@@ -171,25 +171,28 @@ export class Post {
   public static async getList(
     this: ModelType<Post> & typeof Post,
     count: number = 10,
-    cursor: number = 0,
+    cursor: string = "0",
     options: FindPostsOptions
   ): Promise<Array<DocumentType<Post>>> {
     const isAdminAndNotPending =
       options.admin && options.status !== PostStatus.Pending;
     const condition = Object.assign(
-      cursor === 0
-        ? { status: options.status } // cursor가 0이라면 status만 조건에 넣어준다.
-        : options.admin // cursor가 0이 아닐 경우 각 각 조건을 넣어줌
-        ? {
-            _id: {
-              [isAdminAndNotPending ? "$lt" : "$gt"]: cursor,
-            },
-          }
-        : {
-            number: {
-              $lt: cursor,
-            },
-          }
+      { status: options.status },
+      cursor
+        ? options.admin // cursor가 0이 아닐 경우 각 각 조건을 넣어줌
+          ? {
+              _id: {
+                [isAdminAndNotPending ? "$lt" : "$gt"]: new Types.ObjectId(
+                  cursor
+                ),
+              },
+            }
+          : {
+              number: {
+                $lt: parseInt(cursor),
+              },
+            } // cursor가 0이라면 status만 조건에 넣어준다.
+        : {}
     );
     const posts = await this.find(condition)
       .sort({ number: -1 })

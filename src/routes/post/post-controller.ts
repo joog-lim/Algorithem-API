@@ -12,15 +12,15 @@ import { replaceLtGt } from "util/post";
 
 interface GetListParam {
   count: number;
-  cursor: number;
+  cursor: string;
   status: PostStatus;
 }
 
 export const getPosts = async (ctx: Context): Promise<void> => {
   const data: GetListParam = {
-    count: Number(ctx.query.count ?? "10"),
-    cursor: Number(ctx.query.cursor ?? "0"),
-    status: ctx.query.status as PostStatus,
+    count: Number(ctx.request.query.count ?? "10"),
+    cursor: (ctx.request.query.cursor ?? "0") as string,
+    status: ctx.request.query.status as PostStatus,
   };
   const posts = await Post.getList(data.count, data.cursor, {
     admin: ctx.state.isAdmin,
