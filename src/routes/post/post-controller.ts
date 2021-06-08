@@ -7,7 +7,7 @@ import Post, {
   PublicPostFields,
 } from "model/schema/posts";
 
-import { sendDeleteMessage, sendUpdateMessage } from "util/discord";
+import { sendMessage } from "util/discord";
 import { replaceLtGt } from "util/post";
 
 interface GetListParam {
@@ -18,8 +18,8 @@ interface GetListParam {
 
 export const getPosts = async (ctx: Context): Promise<void> => {
   const data: GetListParam = {
-    count: Number(ctx.query.count ?? "10"),
-    cursor: Number(ctx.query.cursor ?? "0"),
+    count: Number(ctx.query.count),
+    cursor: Number(ctx.query.cursor),
     status: ctx.query.status as PostStatus,
   };
   const posts = await Post.getList(data.count, data.cursor, {
@@ -52,7 +52,7 @@ export const writePost = async (ctx: Context): Promise<void> => {
     (body.tag !== "test"
       ? process.env.DISCORD_MANAGEMENT_WEBHOOK
       : process.env.DISCORD_TEST_WEBHOOK) ?? "";
-  await sendUpdateMessage(body, url);
+  await sendMessage(body, url);
 };
 
 export interface PatchPostForm {
@@ -74,7 +74,7 @@ export const patchPost = async (ctx: Context): Promise<void> => {
         if (post.number != null)
           throw new createError.UnavailableForLegalReasons();
         result = await post.setAccepted();
-        await sendUpdateMessage(
+        await sendMessage(
           {
             title: result.title,
             content: result.content,
@@ -108,7 +108,7 @@ export const deletePost = async (ctx: Context): Promise<void> => {
 
   if (!isAdmin) {
     await post.setDeleted();
-    await sendDeleteMessage(
+    await sendMessage(
       "제보 삭제 요청입니다.",
       process.env.DISCORD_MANAGEMENT_WEBHOOK
     );
