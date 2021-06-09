@@ -2,12 +2,12 @@ import {
   getModelForClass,
   prop,
   DocumentType,
-  modelOptions
+  modelOptions,
 } from "@typegoose/typegoose";
-import { Schema } from "mongoose";
 import * as crypto from "crypto";
 import { Base64 } from "js-base64";
 import { ModelType } from "@typegoose/typegoose/lib/types";
+import { Types, Schema } from "mongoose";
 
 export enum PostStatus {
   Pending = "PENDING",
@@ -15,6 +15,12 @@ export enum PostStatus {
   Rejected = "REJECTED",
   Deleted = "DELETED",
 }
+
+export interface FindPostsOptions {
+  admin: boolean;
+  status: PostStatus;
+}
+
 export interface PostRequestForm {
   title: string;
   content: string;
@@ -94,8 +100,22 @@ export class Post {
     return this._id;
   }
 
-  public async setAccepted(this: DocumentType<Post>): Promise<DocumentType<Post>> {
-  
+  public async edit(
+    this: DocumentType<Post>,
+    newTitle?: string,
+    newContent?: string,
+    newFBLink?: string
+  ): Promise<DocumentType<Post>> {
+    this.title = newTitle ?? this.title;
+    this.content = newContent ?? this.content;
+    this.FBLink = newFBLink ?? this.FBLink;
+    await this.save();
+
+    return this;
+  }
+  public async setAccepted(
+    this: DocumentType<Post>
+  ): Promise<DocumentType<Post>> {
     this.status = PostStatus.Accepted;
     const lastPost = (
       await PostModel.find().sort({ number: -1 }).limit(1).exec()
@@ -115,7 +135,9 @@ export class Post {
     return this;
   }
 
-  public async setDeleted(this: DocumentType<Post>): Promise<DocumentType<Post>> {
+  public async setDeleted(
+    this: DocumentType<Post>
+  ): Promise<DocumentType<Post>> {
     this.status = PostStatus.Deleted;
     await this.save();
     return this;
@@ -149,14 +171,29 @@ export class Post {
   public static async getList(
     this: ModelType<Post> & typeof Post,
     count: number = 10,
-    cursor: number = 0
+    cursor: string = "0",
+    options: FindPostsOptions
   ): Promise<Array<DocumentType<Post>>> {
-    const condition = cursor === 0 ? findCondition : {
-      number: { $lt: cursor ?? 0 },
-      status: PostStatus.Pending,
-    };
-    // TODO 리팩토링 추후 필요
-    
+    const isAdminAndNotPending =
+      options.admin && options.status !== PostStatus.Pending;
+    const condition = Object.assign(
+      { status: options.status },
+      cursor
+        ? options.admin // cursor가 0이 아닐 경우 각 각 조건을 넣어줌
+          ? {
+              _id: {
+                [isAdminAndNotPending ? "$lt" : "$gt"]: new Types.ObjectId(
+                  cursor
+                ),
+              },
+            }
+          : {
+              number: {
+                $lt: parseInt(cursor),
+              },
+            } // cursor가 0이라면 status만 조건에 넣어준다.
+        : {}
+    );
     const posts = await this.find(condition)
       .sort({ number: -1 })
       .limit(count)
@@ -164,8 +201,5 @@ export class Post {
     return posts;
   }
 }
-const findCondition ={
-  status: PostStatus.Pending
-};
 const PostModel = getModelForClass(Post);
-export default PostModel
+export default PostModel;
