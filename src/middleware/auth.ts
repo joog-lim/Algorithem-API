@@ -12,7 +12,9 @@ export function authMiddleware(
         ctx.state.isAdmin = false;
         await next();
         return;
-      } else throw new createError.Unauthorized();
+      } else {
+        throw new createError.Unauthorized();
+      }
     }
 
     try {
@@ -23,7 +25,9 @@ export function authMiddleware(
       ctx.state.isAdmin = false;
     }
 
-    if (!ctx.state.isAdmin && !continuous) throw new createError.Unauthorized();
+    if (!ctx.state.isAdmin && !continuous) {
+      throw new createError.Unauthorized();
+    }
     await next();
   };
 }
