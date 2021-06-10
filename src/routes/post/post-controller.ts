@@ -5,7 +5,7 @@ import Post, {
   PostRequestForm,
   PostStatus,
   PublicPostFields,
-} from "model/schema/posts";
+} from "model/posts";
 
 import { sendDeleteMessage, sendUpdateMessage } from "util/discord";
 import { replaceLtGt } from "util/post";

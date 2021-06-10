@@ -1,5 +1,5 @@
 import axios from "axios";
-import { PostRequestForm } from "model/schema/posts";
+import { PostRequestForm } from "model/posts";
 
 interface EmbedFooter {
   text: string;
