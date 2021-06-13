@@ -111,6 +111,28 @@ baselink/post?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDING
 `cursor`은 가져온 `posts` 게시물들 중, 가장 작은 `number`를 가진 `posts`의 `number`를 나타냅니다.
 `hasNext`는 다음에 더 게시물을 가져올 수 있는지에 대한 답변입니다.
 
+#### POST /
+
+게시글을 작성합니다.
+
+- request
+
+```json
+{
+  "title": "타이틀입니다.",
+  "content": "내용입니다.",
+  "tag": "태그입니다."
+}
+```
+
+- response
+
+```json
+{
+  "id": "대충 해당 게시글의 id값"
+}
+```
+
 ### /auth
 
 #### POST /
