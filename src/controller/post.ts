@@ -5,6 +5,7 @@ import Post, {
   PostRequestForm,
   PostStatus,
   PublicPostFields,
+  getPostsNumber,
 } from "model/posts";
 
 import { sendDeleteMessage, sendUpdateMessage } from "util/discord";
@@ -41,6 +42,7 @@ export const writePost = async (ctx: Context): Promise<void> => {
     title: body.title,
     content: replaceLtGt(body.content),
     tag: body.tag,
+    number: await getPostsNumber({ status: PostStatus }),
     createdAt: new Date(),
   }).save();
 
@@ -73,7 +75,7 @@ export const patchPost = async (ctx: Context): Promise<void> => {
       case PostStatus.Accepted:
         if (post.number != null)
           throw new createError.UnavailableForLegalReasons();
-        result = await post.setAccepted();
+        result = await post.setStatus({ status: PostStatus.Accepted });
         await sendUpdateMessage(
           {
             title: result.title,
@@ -85,7 +87,10 @@ export const patchPost = async (ctx: Context): Promise<void> => {
         break;
       case PostStatus.Rejected:
         if (post.reason == null) throw new createError.BadRequest();
-        result = await post.setRejected(body.reason ?? "내용이 부적절합니다.");
+        result = await post.setStatus({
+          status: PostStatus.Rejected,
+          reason: body.reason ?? "내용이 부적절합니다.",
+        });
         break;
       default:
         throw new createError.BadRequest();
@@ -107,7 +112,7 @@ export const deletePost = async (ctx: Context): Promise<void> => {
   if (post == null) throw new createError.NotFound();
 
   if (!isAdmin) {
-    await post.setDeleted();
+    await post.setStatus({ status: PostStatus.Deleted });
     await sendDeleteMessage(
       "제보 삭제 요청입니다.",
       process.env.DISCORD_MANAGEMENT_WEBHOOK
