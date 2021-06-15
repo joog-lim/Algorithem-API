@@ -1,4 +1,9 @@
-import { getModelForClass, modelOptions, prop } from "@typegoose/typegoose";
+import {
+  getModelForClass,
+  modelOptions,
+  prop,
+  DocumentType,
+} from "@typegoose/typegoose";
 import { Base64 } from "js-base64";
 import { Schema } from "mongoose";
 
@@ -8,7 +13,7 @@ import { Schema } from "mongoose";
   },
 })
 class Verifier {
-  public _id: Schema.Types.ObjectId;
+  public _id: string;
 
   @prop({ required: true })
   public question: string;
@@ -16,8 +21,12 @@ class Verifier {
   @prop({ required: true })
   public answer: string;
 
-  public get id(): string {
+  public getId(): string {
     return Base64.encode(this._id.toString());
+  }
+
+  public isCorrect(this: DocumentType<Verifier>, target: string): boolean {
+    return this.answer == target;
   }
 }
 
