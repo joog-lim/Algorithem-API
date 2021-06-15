@@ -35,6 +35,9 @@ export interface PublicPostFields {
   createdAt: number;
   status: string;
 }
+export interface DeletedPostFields extends PublicPostFields {
+  deleteReqNumber: number;
+}
 export interface SetStatusArg {
   status: PostStatus;
   reason?: string;
@@ -93,6 +96,9 @@ export class Post {
   @prop()
   public FBLink?: string;
 
+  @prop()
+  public deleteReqNumber?: number;
+
   public get id(): Schema.Types.ObjectId {
     return this._id;
   }
@@ -120,6 +126,25 @@ export class Post {
     await this.save();
     return this;
   }
+  public async setDeleted(
+    this: DocumentType<Post>,
+    reason: string
+  ): Promise<DocumentType<Post>> {
+    this.status = PostStatus.Deleted;
+    this.reason = reason ?? "";
+    const lastDeletedReqNumber =
+      (
+        await PostModel.find({
+          deleteReqNumber: { $gt: 0 },
+        })
+          .sort({ deleteReqNumber: -1 })
+          .limit(1)
+          .exec()
+      )[0]?.deleteReqNumber ?? 0;
+    this.deleteReqNumber = lastDeletedReqNumber + 1;
+    await this.save();
+    return this;
+  }
 
   public getPublicFields(this: DocumentType<Post>): PublicPostFields {
     return {
@@ -133,6 +158,19 @@ export class Post {
       status: this.status,
     };
   }
+  public getDeletedFields(this: DocumentType<Post>): DeletedPostFields {
+    return {
+      id: this.id,
+      number: this.number,
+      title: this.title,
+      content: this.content,
+      tag: this.tag,
+      FBLink: this.FBLink,
+      createdAt: this.createdAt.getTime(),
+      status: this.status,
+      deleteReqNumber: this.deleteReqNumber ?? 0,
+    };
+  }
   public static async getList(
     this: ModelType<Post> & typeof Post,
     count: number = 10,
@@ -142,7 +180,14 @@ export class Post {
     const isAdminAndNotPending =
       options.admin && options.status !== PostStatus.Pending;
     const condition = Object.assign(
-      { status: options.status },
+      options.status !== PostStatus.Accepted
+        ? { status: options.status }
+        : {
+            $or: [
+              { status: PostStatus.Accepted },
+              { status: PostStatus.Deleted },
+            ],
+          },
       cursor
         ? options.admin // cursor가 0이 아닐 경우 각 각 조건을 넣어줌
           ? {
@@ -160,7 +205,9 @@ export class Post {
         : {}
     );
     const posts = await this.find(condition)
-      .sort({ number: -1 })
+      .sort(
+        options.admin ? { _id: isAdminAndNotPending ? -1 : 1 } : { number: -1 }
+      )
       .limit(count)
       .exec();
     return posts;

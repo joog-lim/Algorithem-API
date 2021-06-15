@@ -6,14 +6,13 @@ import Post, {
   PostStatus,
   PublicPostFields,
   getPostsNumber,
+  DeletedPostFields,
 } from "model/posts";
 
 import { sendDeleteMessage, sendUpdateMessage } from "util/discord";
 import { replaceLtGtQuot } from "util/post";
 import verifieres from "model/verifieres";
 import { Base64 } from "js-base64";
-import { Types } from "mongoose";
-
 interface GetListParam {
   count: number;
   cursor: string;
@@ -32,7 +31,11 @@ export const getPosts = async (ctx: Context): Promise<void> => {
   });
   ctx.status = 200;
   ctx.body = {
-    posts: posts.map((value): PublicPostFields => value.getPublicFields()),
+    posts: posts.map(
+      data.status !== PostStatus.Deleted
+        ? (value): PublicPostFields => value.getPublicFields()
+        : (value): DeletedPostFields => value.getDeletedFields()
+    ),
     cursor: posts.length > 0 ? posts[posts.length - 1].number : null,
     hasNext: posts.length === data.count,
   };
@@ -40,7 +43,6 @@ export const getPosts = async (ctx: Context): Promise<void> => {
 
 export const writePost = async (ctx: Context): Promise<void> => {
   const body: PostRequestForm = ctx.state.validator.data;
-  const id = new Types.ObjectId(Base64.decode(body.verifier.id));
   const verifier = await verifieres
     .findOne({ _id: Base64.decode(body.verifier.id) })
     .exec();
@@ -115,15 +117,18 @@ export const patchPost = async (ctx: Context): Promise<void> => {
 
 export const deletePost = async (ctx: Context): Promise<void> => {
   const isAdmin: boolean = ctx.state.isAdmin;
-  const post = await Post.findById(ctx.params.arg)
+  const post = await Post.findById(ctx.params.arg);
   if (post == null) throw new createError.NotFound();
 
   if (!isAdmin) {
-    await post.setStatus({ status: PostStatus.Deleted });
-    await sendDeleteMessage(
-      "제보 삭제 요청입니다.",
-      process.env.DISCORD_MANAGEMENT_WEBHOOK
-    );
+    const reason: string = ctx.request.body.reason;
+    await post.setDeleted(reason);
+    await sendDeleteMessage({
+      coment: "제보 삭제 요청입니다.",
+      reasaon: reason ?? "",
+      number: post.number,
+      url: process.env.DISCORD_MANAGEMENT_WEBHOOK,
+    });
   } else {
     await post.remove();
   }

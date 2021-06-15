@@ -46,19 +46,25 @@ const generateMessage: Function = ({
     ],
   };
 };
+interface DiscordDeletedMessage {
+  coment: string;
+  reason: string;
+  url: string;
+  number: number;
+}
 export const sendDeleteMessage: Function = async (
-  coment: string,
-  url: string
+  arg: DiscordDeletedMessage
 ): Promise<void> => {
   const embed: DiscordWebhookMessage = generateMessage({
     form: {
-      title: coment,
-      tag: "삭제 요청",
+      title: arg.coment,
+      description: arg.reason,
+      tag: `${arg.number} 알고리즘 삭제 요청`,
     },
     coment: "알고리즘 삭제 요청입니다.",
     color: 16711680,
   });
-  await sendMessage(url, embed);
+  await sendMessage(arg.url, embed);
 };
 export const sendUpdateMessage: Function = async (
   form: PostRequestForm,
