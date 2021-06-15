@@ -115,9 +115,7 @@ export const patchPost = async (ctx: Context): Promise<void> => {
 
 export const deletePost = async (ctx: Context): Promise<void> => {
   const isAdmin: boolean = ctx.state.isAdmin;
-  const post = isAdmin
-    ? await Post.findById(ctx.params.arg)
-    : await Post.findOne({ hash: ctx.params.arg });
+  const post = await Post.findById(ctx.params.arg)
   if (post == null) throw new createError.NotFound();
 
   if (!isAdmin) {
