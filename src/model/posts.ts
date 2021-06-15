@@ -23,6 +23,7 @@ export interface PostRequestForm {
   title: string;
   content: string;
   tag: string;
+  verifier: { id: string; answer: string };
 }
 export interface PublicPostFields {
   id: string;
@@ -47,12 +48,12 @@ export const getPostsNumber: Function = async (
       .limit(1)
       .exec()
   )[0];
-  return (lastPost.number ?? 0) + 1;
+  return (lastPost?.number ?? 0) + 1;
 };
 @modelOptions({
   schemaOptions: {
     timestamps: true,
-    collection: "_posts",
+    collection: "posts",
     toObject: {
       virtuals: true,
     },
@@ -114,7 +115,7 @@ export class Post {
     arg: SetStatusArg
   ): Promise<DocumentType<Post>> {
     this.status = arg.status;
-    this.number = getPostsNumber(status);
+    this.number = await getPostsNumber(arg.status);
     this.reason = arg.reason ?? "";
     await this.save();
     return this;

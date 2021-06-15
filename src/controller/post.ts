@@ -9,7 +9,10 @@ import Post, {
 } from "model/posts";
 
 import { sendDeleteMessage, sendUpdateMessage } from "util/discord";
-import { replaceLtGt } from "util/post";
+import { replaceLtGtQuot } from "util/post";
+import verifieres from "model/verifieres";
+import { Base64 } from "js-base64";
+import { Types } from "mongoose";
 
 interface GetListParam {
   count: number;
@@ -36,13 +39,21 @@ export const getPosts = async (ctx: Context): Promise<void> => {
 };
 
 export const writePost = async (ctx: Context): Promise<void> => {
-  const body: PostRequestForm = ctx.request.body;
+  const body: PostRequestForm = ctx.state.validator.data;
+  const id = new Types.ObjectId(Base64.decode(body.verifier.id));
+  const verifier = await verifieres
+    .findOne({ _id: Base64.decode(body.verifier.id) })
+    .exec();
+  if (!verifier?.isCorrect(body.verifier.answer)) {
+    // verifier이 없거나, 있더라도 값이 올바르지않은 경우
+    throw new createError.Unauthorized(); // HTTP 401
+  }
 
   const result = new Post({
     title: body.title,
-    content: replaceLtGt(body.content),
+    content: replaceLtGtQuot(body.content),
     tag: body.tag,
-    number: await getPostsNumber({ status: PostStatus }),
+    number: await getPostsNumber(PostStatus.Pending),
     createdAt: new Date(),
   }).save();
 
@@ -73,8 +84,6 @@ export const patchPost = async (ctx: Context): Promise<void> => {
   if (body.status != null) {
     switch (body.status) {
       case PostStatus.Accepted:
-        if (post.number != null)
-          throw new createError.UnavailableForLegalReasons();
         result = await post.setStatus({ status: PostStatus.Accepted });
         await sendUpdateMessage(
           {
@@ -86,7 +95,7 @@ export const patchPost = async (ctx: Context): Promise<void> => {
         );
         break;
       case PostStatus.Rejected:
-        if (post.reason == null) throw new createError.BadRequest();
+        if (body.reason == null) throw new createError.BadRequest();
         result = await post.setStatus({
           status: PostStatus.Rejected,
           reason: body.reason ?? "내용이 부적절합니다.",
