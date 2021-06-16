@@ -1,5 +1,5 @@
 import axios from "axios";
-import { PostRequestForm } from "model/schema/posts";
+import { PostRequestForm } from "model/posts";
 
 interface EmbedFooter {
   text: string;
@@ -46,20 +46,25 @@ const generateMessage: Function = ({
     ],
   };
 };
+interface DiscordDeletedMessage {
+  coment: string;
+  reason: string;
+  url: string;
+  number: number;
+}
 export const sendDeleteMessage: Function = async (
-  coment: string,
-  url: string
+  arg: DiscordDeletedMessage
 ): Promise<void> => {
   const embed: DiscordWebhookMessage = generateMessage({
     form: {
-      title: "게시글 삭제 요청",
-      content: "게시글 삭제 요청입니다.",
-      tag: "삭제 요청",
+      title: arg.coment,
+      description: arg.reason,
+      tag: `${arg.number} 알고리즘 삭제 요청`,
     },
-    coment: coment,
+    coment: "알고리즘 삭제 요청입니다.",
     color: 16711680,
   });
-  await sendMessage(url, embed);
+  await sendMessage(arg.url, embed);
 };
 export const sendUpdateMessage: Function = async (
   form: PostRequestForm,
@@ -67,7 +72,7 @@ export const sendUpdateMessage: Function = async (
 ): Promise<void> => {
   const data: DiscordWebhookMessage = generateMessage({
     form: form,
-    coment: "새로운 제보가 올라왔습니다!",
+    coment: "새로운 알고리즘이 올라왔습니다!",
     color: 65280,
   });
   await sendMessage(url, data);

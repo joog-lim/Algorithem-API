@@ -4,8 +4,6 @@ import {
   DocumentType,
   modelOptions,
 } from "@typegoose/typegoose";
-import * as crypto from "crypto";
-import { Base64 } from "js-base64";
 import { ModelType } from "@typegoose/typegoose/lib/types";
 import { Types, Schema } from "mongoose";
 
@@ -25,6 +23,7 @@ export interface PostRequestForm {
   title: string;
   content: string;
   tag: string;
+  verifier: { id: string; answer: string };
 }
 export interface PublicPostFields {
   id: string;
@@ -36,14 +35,28 @@ export interface PublicPostFields {
   createdAt: number;
   status: string;
 }
-export interface PostAuthorFields extends PublicPostFields {
-  hash: string;
+export interface DeletedPostFields extends PublicPostFields {
+  deleteReqNumber: number;
 }
-
+export interface SetStatusArg {
+  status: PostStatus;
+  reason?: string;
+}
+export const getPostsNumber: Function = async (
+  status: PostStatus
+): Promise<number> => {
+  const lastPost = (
+    await PostModel.find({ status: status })
+      .sort({ number: -1 })
+      .limit(1)
+      .exec()
+  )[0];
+  return (lastPost?.number ?? 0) + 1;
+};
 @modelOptions({
   schemaOptions: {
     timestamps: true,
-    collection: "_posts",
+    collection: "posts",
     toObject: {
       virtuals: true,
     },
@@ -63,7 +76,7 @@ export class Post {
   public createdAt: Date;
 
   @prop()
-  public number?: number;
+  public number: number;
 
   @prop({ required: true, trim: true, default: "" })
   public title!: string;
@@ -72,7 +85,7 @@ export class Post {
   public content!: string;
 
   @prop({ required: true })
-  public tag: string;
+  public tag!: string;
 
   @prop({ enum: PostStatus, default: PostStatus.Pending })
   public status: PostStatus;
@@ -83,19 +96,13 @@ export class Post {
   @prop()
   public FBLink?: string;
 
-  @prop({
-    default: (): string => {
-      return crypto
-        .createHash("sha256")
-        .update(Date.now().toString())
-        .digest("hex");
-    },
-  })
-  public hash: string;
+  @prop()
+  public deleteReqNumber?: number;
 
   public get cursorId(): string {
-    return Base64.encode(this._id.toString());
+    return this._id.toString();
   }
+
   public get id(): Schema.Types.ObjectId {
     return this._id;
   }
@@ -113,49 +120,36 @@ export class Post {
 
     return this;
   }
-  public async setAccepted(
-    this: DocumentType<Post>
+  public async setStatus(
+    this: DocumentType<Post>,
+    arg: SetStatusArg
   ): Promise<DocumentType<Post>> {
-    this.status = PostStatus.Accepted;
-    const lastPost = (
-      await PostModel.find().sort({ number: -1 }).limit(1).exec()
-    )[0];
-    this.number = (lastPost.number ?? 0) + 1;
+    this.status = arg.status;
+    this.number = await getPostsNumber(arg.status);
+    this.reason = arg.reason ?? "";
     await this.save();
     return this;
   }
-
-  public async setRejected(
+  public async setDeleted(
     this: DocumentType<Post>,
     reason: string
   ): Promise<DocumentType<Post>> {
-    this.status = PostStatus.Rejected;
-    this.reason = reason;
-    await this.save();
-    return this;
-  }
-
-  public async setDeleted(
-    this: DocumentType<Post>
-  ): Promise<DocumentType<Post>> {
     this.status = PostStatus.Deleted;
+    this.reason = reason ?? "";
+    const lastDeletedReqNumber =
+      (
+        await PostModel.find({
+          deleteReqNumber: { $gt: 0 },
+        })
+          .sort({ deleteReqNumber: -1 })
+          .limit(1)
+          .exec()
+      )[0]?.deleteReqNumber ?? 0;
+    this.deleteReqNumber = lastDeletedReqNumber + 1;
     await this.save();
     return this;
   }
 
-  public getAuthorFields(this: DocumentType<Post>): PostAuthorFields {
-    return {
-      id: this.id,
-      number: this.number,
-      title: this.title,
-      content: this.content,
-      tag: this.tag,
-      FBLink: this.FBLink,
-      createdAt: this.createdAt.getTime(),
-      status: this.status,
-      hash: this.hash,
-    };
-  }
   public getPublicFields(this: DocumentType<Post>): PublicPostFields {
     return {
       id: this.id,
@@ -168,6 +162,19 @@ export class Post {
       status: this.status,
     };
   }
+  public getDeletedFields(this: DocumentType<Post>): DeletedPostFields {
+    return {
+      id: this.id,
+      number: this.number,
+      title: this.title,
+      content: this.content,
+      tag: this.tag,
+      FBLink: this.FBLink,
+      createdAt: this.createdAt.getTime(),
+      status: this.status,
+      deleteReqNumber: this.deleteReqNumber ?? 0,
+    };
+  }
   public static async getList(
     this: ModelType<Post> & typeof Post,
     count: number = 10,
@@ -177,7 +184,14 @@ export class Post {
     const isAdminAndNotPending =
       options.admin && options.status !== PostStatus.Pending;
     const condition = Object.assign(
-      { status: options.status },
+      options.status !== PostStatus.Accepted
+        ? { status: options.status }
+        : {
+            $or: [
+              { status: PostStatus.Accepted },
+              { status: PostStatus.Deleted },
+            ],
+          },
       cursor
         ? options.admin // cursor가 0이 아닐 경우 각 각 조건을 넣어줌
           ? {
@@ -195,7 +209,9 @@ export class Post {
         : {}
     );
     const posts = await this.find(condition)
-      .sort({ number: -1 })
+      .sort(
+        options.admin ? { _id: isAdminAndNotPending ? -1 : 1 } : { number: -1 }
+      )
       .limit(count)
       .exec();
     return posts;

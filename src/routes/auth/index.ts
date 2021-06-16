@@ -1,5 +1,5 @@
 import * as Router from "koa-router";
-import { authAdmin } from "./auth-controller";
+import { authAdmin } from "controller/auth";
 
 const router = new Router();
 
