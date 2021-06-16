@@ -99,6 +99,10 @@ export class Post {
   @prop()
   public deleteReqNumber?: number;
 
+  public get cursorId(): string {
+    return this._id.toString();
+  }
+
   public get id(): Schema.Types.ObjectId {
     return this._id;
   }

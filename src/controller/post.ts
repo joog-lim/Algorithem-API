@@ -1,5 +1,6 @@
 import { Context } from "koa";
 import * as createError from "http-errors";
+import { DocumentType } from "@typegoose/typegoose";
 
 import Post, {
   PostRequestForm,
@@ -7,6 +8,7 @@ import Post, {
   PublicPostFields,
   getPostsNumber,
   DeletedPostFields,
+  Post as PostClass,
 } from "model/posts";
 
 import { sendDeleteMessage, sendUpdateMessage } from "util/discord";
@@ -18,7 +20,16 @@ interface GetListParam {
   cursor: string;
   status: PostStatus;
 }
-
+const getCursor = async (
+  posts: DocumentType<PostClass>[],
+  isAdmin: boolean
+): Promise<string> => {
+  return posts.length > 0
+    ? isAdmin
+      ? posts[posts.length - 1].cursorId
+      : posts[posts.length - 1].number.toString()
+    : "";
+};
 export const getPosts = async (ctx: Context): Promise<void> => {
   const data: GetListParam = {
     count: Number(ctx.request.query.count ?? "10"),
@@ -36,7 +47,7 @@ export const getPosts = async (ctx: Context): Promise<void> => {
         ? (value): PublicPostFields => value.getPublicFields()
         : (value): DeletedPostFields => value.getDeletedFields()
     ),
-    cursor: posts.length > 0 ? posts[posts.length - 1].number : null,
+    cursor: await getCursor(posts, ctx.state.isAdmin),
     hasNext: posts.length === data.count,
   };
 };
