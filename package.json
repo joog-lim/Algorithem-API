@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "repository": "https://github.com/Promotion-official/bamboo-server.git",
   "author": "sunrabbit123 <qudwls185@naver.com>",
-  "license": "apache2.0",
+  "license": "Apache-2.0",
   "scripts": {
     "start": "cross-env NODE_PATH=src ts-node src/run.ts",
     "dev": "cross-env NODE_PATH=src nodemon --exec ts-node src/run.ts"
