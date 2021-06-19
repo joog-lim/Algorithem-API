@@ -1,4 +1,14 @@
 # yarn
 node_modules
+
+# env file
 .env
+
+# formatting
 .vscode
+
+# serverless
+.serverless
+
+# build
+.build

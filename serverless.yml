@@ -12,22 +12,23 @@
 # Happy Coding!
 
 service: bamboo-server
+useDotenv: true
 # app and org for use with dashboard.serverless.com
 #app: your-app-name
 #org: your-org-name
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
-frameworkVersion: '2'
+frameworkVersion: "2"
 
 provider:
   name: aws
   runtime: nodejs12.x
   lambdaHashingVersion: 20201221
+  region: ap-northeast-2
 
 # you can overwrite defaults here
 #  stage: dev
-#  region: us-east-1
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -60,6 +61,10 @@ provider:
 functions:
   hello:
     handler: handler.hello
+    events:
+      - http:
+          path: hello
+          method: get
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -111,3 +116,18 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+plugins:
+  - serverless-plugin-typescript
+  - serverless-dotenv-plugin
+  - serverless-offline
+custom:
+  dotenv:
+    required:
+      env:
+        - PORT
+        - MONGO_URL
+        - DISCORD_WEBHOOK
+        - DISCORD_TEST_WEBHOOK
+        - DISCORD_MANAGEMENT_WEBHOOK
+        - ADMIN_PASSWORD
+        - JWT_SECRET
