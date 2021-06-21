@@ -1,15 +1,14 @@
 import * as createError from "http-errors";
 import { verify } from "jsonwebtoken";
-import { Context } from "koa";
 
 export function authMiddleware(
   continuous: boolean
-): (ctx: Context, next: () => Promise<unknown>) => Promise<void> {
-  return async (ctx: Context, next: () => Promise<unknown>): Promise<void> => {
+): (event: any, next: () => Promise<unknown>) => Promise<void> {
+  return async (event: any, next: () => Promise<unknown>): Promise<void> => {
     // 인증헤더가 없을 경우
-    if (ctx.header.authorization == null) {
+    if (event.request.header.authorization == null) {
       if (continuous) {
-        ctx.state.isAdmin = false;
+        event.state.isAdmin = false;
         await next();
         return;
       } else {
@@ -18,35 +17,38 @@ export function authMiddleware(
     }
 
     try {
-      verify(ctx.header.authorization, process.env.JWT_SECRET ?? "secure");
+      verify(
+        event.request.header.authorization,
+        process.env.JWT_SECRET ?? "secure"
+      );
 
-      ctx.state.isAdmin = true;
+      event.state.isAdmin = true;
     } catch (err) {
-      ctx.state.isAdmin = false;
+      event.state.isAdmin = false;
     }
 
-    if (!ctx.state.isAdmin && !continuous) {
+    if (!event.state.isAdmin && !continuous) {
       throw new createError.Unauthorized();
     }
     await next();
   };
 }
 export async function statusCodeVerification(
-  ctx: Context,
+  event: any,
   next: Function
 ): Promise<void> {
   try {
     await next();
-    if (ctx.status >= 400) ctx.throw(ctx.status, ctx.message);
+    if (event.status >= 400) event.throw(event.status, event.message);
   } catch (err) {
     if (err.status != null) {
-      ctx.status = err.status;
-      ctx.body = {
+      event.status = err.status;
+      event.body = {
         error: err.message,
       };
     } else {
-      ctx.status = 500;
-      ctx.body = {
+      event.status = 500;
+      event.response.body = {
         error: "Internal Server Error",
       };
       console.error(err);

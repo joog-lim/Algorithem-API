@@ -1,4 +1,13 @@
 # yarn
 node_modules
+yarn-error.log
+yarn.lock
+
+# env file
 .env
+# formatting
 .vscode
+# serverless
+.serverless
+# build
+.build
