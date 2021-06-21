@@ -2,6 +2,8 @@ import { Context } from "koa";
 import * as createError from "http-errors";
 import { DocumentType } from "@typegoose/typegoose";
 
+import { Base64 } from "js-base64";
+
 import Post, {
   PostRequestForm,
   PostStatus,
@@ -9,12 +11,11 @@ import Post, {
   getPostsNumber,
   DeletedPostFields,
   Post as PostClass,
-} from "model/posts";
+} from "../model/posts";
 
-import { sendDeleteMessage, sendUpdateMessage } from "util/discord";
-import { replaceLtGtQuot } from "util/post";
-import verifieres from "model/verifieres";
-import { Base64 } from "js-base64";
+import { sendDeleteMessage, sendUpdateMessage } from "../util/discord";
+import { replaceLtGtQuot } from "../util/post";
+import verifieres from "../model/verifieres";
 interface GetListParam {
   count: number;
   cursor: string;

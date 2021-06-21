@@ -5,14 +5,13 @@ import * as logger from "koa-logger";
 import * as koaJson from "koa-json";
 import * as helmet from "koa-helmet";
 import etag = require("koa-etag");
-import * as mongoose from "mongoose";
 
-import * as dotenv from "dotenv";
+import * as mongoose from "mongoose";
 
 import { setGlobalOptions } from "@typegoose/typegoose";
 
-import router from "routes";
-import { statusCodeVerification } from "middleware/auth";
+import router from "./routes";
+
 setGlobalOptions({
   globalOptions: {
     useNewEnum: true,
@@ -20,8 +19,6 @@ setGlobalOptions({
 });
 
 const app = new Koa();
-
-dotenv.config();
 
 mongoose
   .connect(process.env.MONGO_URL ?? "", {
@@ -41,7 +38,7 @@ app
   .use(etag())
   .use(logger())
   .use(bodyParser()) //라우팅 보다 먼저 나와야 정상 적용이 됨
-  .use(statusCodeVerification)
+  //  .use(statusCodeVerification)
   .use(router.routes())
   .use(router.allowedMethods());
 
