@@ -5,9 +5,12 @@ yarn.lock
 
 # env file
 .env
+
 # formatting
 .vscode
+
 # serverless
 .serverless
+
 # build
 .build
