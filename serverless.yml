@@ -26,9 +26,7 @@ provider:
   runtime: nodejs12.x
   lambdaHashingVersion: 20201221
   region: ap-northeast-2
-
-# you can overwrite defaults here
-#  stage: dev
+  stage: api
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -59,12 +57,52 @@ provider:
 #    - include-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
+  # hello:
+  #   handler: handler.hello
+  #   events:
+  #     - http:
+  #         path: /
+  #         method: get
+  #   cors:
+  #     origin: "*"
+  post:
+    handler: src/sls.handler
     events:
       - http:
-          path: hello
+          path: post
           method: get
+      - http:
+          path: post
+          method: post
+      - http:
+          path: post/{id}
+          method: patch
+      - http:
+          path: post/{arg}
+          method: delete
+      # - http:
+      #     path: /
+      #     method: get
+    cors:
+      origin: "*"
+
+  auth:
+    handler: handler.authAdmin
+    events:
+      - http:
+          path: auth
+          method: post
+    cors:
+      origin: "*"
+  verify:
+    handler: handler.getVerifyQuestion
+    events:
+      - http:
+          path: verify
+          method: get
+    cors:
+      origin: "*"
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

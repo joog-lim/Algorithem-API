@@ -1,7 +1,7 @@
 import * as Router from "koa-router";
 
-import { authMiddleware } from "middleware/auth";
-import { validatorMiddleware } from "middleware/validator";
+import { authMiddleware } from "../../middleware/auth";
+import { validatorMiddleware } from "../../middleware/validator";
 
 import {
   deletePost,
@@ -9,9 +9,9 @@ import {
   patchPost,
   PatchPostForm,
   writePost,
-} from "controller/post";
+} from "../../controller/post";
 
-import { PostRequestForm } from "model/posts";
+import { PostRequestForm } from "../../model/posts";
 
 const post = new Router();
 
