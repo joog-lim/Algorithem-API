@@ -6,7 +6,7 @@
       
       "noImplicitAny": true, // any 타입으로 구현된 표현식 혹은 정의 에러처리 
       "strictPropertyInitialization": false, // 클래스 값 초기화에 엄격한 확인 여부
-      "moduleResolution": "Node", // 모듈 해석 방법
+      "moduleResolution": "node", // 모듈 해석 방법
       "sourceMap": true, // .map 파일 생성 여부
       "baseUrl": "./src", //  non-absolute한 모듈이름을 처리할 기준 디렉터리
       "experimentalDecorators": true, // ES7의 데코레이터에 대한실험적 지원 여부

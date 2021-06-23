@@ -1,0 +1,73 @@
+service: bamboo-server
+useDotenv: true
+
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  region: ap-northeast-2
+  stage: api
+
+functions:
+  # hello:
+  #   handler: handler.hello
+  #   events:
+  #     - http:
+  #         path: /
+  #         method: get
+  #   cors:
+  #     origin: "*"
+  post:
+    handler: src/sls.handler
+    events:
+      - http:
+          path: post/get-list
+          method: get
+      - http:
+          path: post/create
+          method: post
+      - http:
+          path: post/patch/{id}
+          method: patch
+      - http:
+          path: post/delete/{arg}
+          method: delete
+      # - http:
+      #     path: /
+      #     method: get
+    cors:
+      origin: "*"
+
+  auth:
+    handler: handler.authAdmin
+    events:
+      - http:
+          path: auth
+          method: post
+    cors:
+      origin: "*"
+  verify:
+    handler: handler.getVerifyQuestion
+    events:
+      - http:
+          path: verify
+          method: get
+    cors:
+      origin: "*"
+plugins:
+  - serverless-plugin-typescript
+  - serverless-dotenv-plugin
+  - serverless-offline
+custom:
+  dotenv:
+    required:
+      env:
+        - PORT
+        - MONGO_URL
+        - DISCORD_WEBHOOK
+        - DISCORD_TEST_WEBHOOK
+        - DISCORD_MANAGEMENT_WEBHOOK
+        - ADMIN_PASSWORD
+        - JWT_SECRET
