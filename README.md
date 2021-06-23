@@ -25,7 +25,7 @@ JWT_SECRET=
 - start
 
 ```sh
-$ yarn start
+$ yarn local
 ```
 
 ## API명세서
@@ -35,16 +35,19 @@ $ yarn start
 
 관리자 세션은 `Authorization header`에 넣어주시면 됩니다.
 
+기본적인 경로는 다음과 같습니다.  
+https://**baseurl**/**api**
+
 ### /post
 
-#### GET / (Auth, continue : true)
+#### GET /get-list (Auth, continue : true)
 
 조건에 부합하는 게시물 리스트를 가져옵니다.
 
 - request
 
 ```uri
-baselink/post?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDING
+baselink/api/pist/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDING
 ```
 
 `count`는 한번에 몇개를 가져올지를 나타냅니다.  
@@ -111,7 +114,7 @@ baselink/post?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDING
 `cursor`은 가져온 `posts` 게시물들 중, 가장 작은 `number`를 가진 `posts`의 `number`를 나타냅니다.
 `hasNext`는 다음에 더 게시물을 가져올 수 있는지에 대한 답변입니다.
 
-#### POST /
+#### POST /create (Auth, continue=false)
 
 게시글을 작성합니다.
 
@@ -152,5 +155,20 @@ baselink/post?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDING
 ```json
 {
   "token": "some jwt token"
+}
+```
+
+## /verify
+
+### GET /
+
+질문 하나를 랜덤으로 받습니다.
+
+- response
+
+```json
+{
+  "id": "NjBjN2QyNjhmNDM2NWZkOWFkMWYwN2Y0",
+  "question": "GSM 와이파이 비밀번호는??"
 }
 ```
