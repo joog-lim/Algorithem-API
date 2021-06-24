@@ -136,6 +136,24 @@ baselink/api/pist/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDI
 }
 ```
 
+#### /patch/{id}
+`id`는 수정할 게시물의 고유 id값을 얘기합니다.  
+
+- request
+
+```json
+{
+    "status" : "ACCEPTED" # ACCEPTED, REJECTED, DELETED
+    "reason" : "대충 이유 또는 사유"
+}
+```
+
+- response
+
+```json
+#TODO
+```
+
 ### /auth
 
 #### POST /
@@ -158,9 +176,9 @@ baselink/api/pist/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDI
 }
 ```
 
-## /verify
+### /verify
 
-### GET /
+#### GET /
 
 질문 하나를 랜덤으로 받습니다.
 
