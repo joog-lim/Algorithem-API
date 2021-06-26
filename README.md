@@ -136,6 +136,23 @@ baselink/api/pist/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDI
 }
 ```
 
+#### DELETE /delete/{arg}
+`arg`는 삭제할 게시물의 고유 아이디값입니다.  
+
+- request
+```json
+{
+    "reason" : "배고프기때문이랄까..?."
+}
+```
+
+- response
+```json
+{
+  "result" : "success"
+}
+```
+
 ### /auth
 
 #### POST /
