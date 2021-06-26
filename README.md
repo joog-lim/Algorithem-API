@@ -136,21 +136,43 @@ baselink/api/pist/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDI
 }
 ```
 
+<<<<<<< HEAD
+
 #### DELETE /delete/{arg}
-`arg`는 삭제할 게시물의 고유 아이디값입니다.  
+
+`arg`는 삭제할 게시물의 고유 아이디값입니다.
 
 - request
+
 ```json
 {
-    "reason" : "배고프기때문이랄까..?."
+  "reason": "배고프기때문이랄까..?."
 }
 ```
 
 - response
+
 ```json
 {
-  "result" : "success"
+  "result": "success"
 }
+```
+
+#### /patch/{id}
+
+`id`는 수정할 게시물의 고유 id값을 얘기합니다.
+
+- request
+
+```json
+{
+    "status" : "ACCEPTED" # ACCEPTED, REJECTED, DELETED
+    "reason" : "대충 이유 또는 사유"
+}
+```
+
+```json
+#TODO
 ```
 
 ### /auth
@@ -175,9 +197,9 @@ baselink/api/pist/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDI
 }
 ```
 
-## /verify
+### /verify
 
-### GET /
+#### GET /
 
 질문 하나를 랜덤으로 받습니다.
 
