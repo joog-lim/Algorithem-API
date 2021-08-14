@@ -60,9 +60,8 @@ interface AuthParam {
 }
 exports.authAdmin = async (event: any, _: any, cb: Function) => {
   const body: AuthParam = JSON.parse(event.body);
-  console.log(JSON.stringify(body));
   if (body.password !== process.env.ADMIN_PASSWORD) {
-    throw new createHttpError.Unauthorized();
+    cb(null, createRes(400, { error: "비밀번호가 잘못되었습니다." }));
   }
 
   const token = sign({ name: "admin" }, process.env.JWT_SECRET ?? "secure", {

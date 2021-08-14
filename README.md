@@ -41,6 +41,8 @@ $ yarn local
 기본적인 경로는 다음과 같습니다.  
 https://**baseurl**/**api**
 
+모든 인자값 전달은 json의 형태로 이루어집니다.
+
 ### /post
 
 #### GET /get-list (Auth, continue : true)

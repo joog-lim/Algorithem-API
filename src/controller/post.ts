@@ -48,6 +48,7 @@ export const getPosts = async (ctx: Context): Promise<void> => {
         ? (value): PublicPostFields => value.getPublicFields()
         : (value): DeletedPostFields => value.getDeletedFields()
     ),
+    count: await Post.count(),
     cursor: await getCursor(posts, ctx.state.isAdmin),
     hasNext: posts.length === data.count,
   };
