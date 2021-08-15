@@ -1,6 +1,5 @@
 "use strict";
 
-import createHttpError = require("http-errors");
 import * as mongoose from "mongoose";
 import { sign } from "jsonwebtoken";
 
@@ -44,7 +43,8 @@ exports.getVerifyQuestion = async (_: any, __: any, cb: Function) => {
   const random = Math.floor(Math.random() * count);
   const result = await verifierModel.findOne().skip(random).exec();
 
-  if (result == null) throw new createHttpError.NotFound();
+  if (result == null)
+    cb(null, createRes(404, { error: "not found", success: false }));
 
   cb(
     null,
@@ -61,11 +61,14 @@ interface AuthParam {
 exports.authAdmin = async (event: any, _: any, cb: Function) => {
   const body: AuthParam = JSON.parse(event.body);
   if (body.password !== process.env.ADMIN_PASSWORD) {
-    cb(null, createRes(400, { error: "비밀번호가 잘못되었습니다." }));
+    cb(
+      null,
+      createRes(400, { error: "비밀번호가 잘못되었습니다.", success: false })
+    );
   }
 
   const token = sign({ name: "admin" }, process.env.JWT_SECRET ?? "secure", {
     expiresIn: "3h",
   });
-  cb(null, createRes(200, { token: token }));
+  cb(null, createRes(200, { token: token, success: true }));
 };

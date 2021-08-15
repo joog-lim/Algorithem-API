@@ -198,6 +198,7 @@ baselink/api/pist/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDI
 
 ```json
 {
+  "success" : true// or false
   "token": "some jwt token"
 }
 ```
