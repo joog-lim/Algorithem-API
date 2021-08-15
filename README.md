@@ -129,7 +129,8 @@ baselink/api/pist/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDI
 {
   "title": "타이틀입니다.",
   "content": "내용입니다.",
-  "tag": "태그입니다."
+  "tag": "태그입니다.",
+  "verifier": { "id": "question id", "answer": "question answer" }
 }
 ```
 
