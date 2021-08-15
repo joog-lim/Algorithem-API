@@ -119,7 +119,7 @@ baselink/api/pist/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDI
 `cursor`은 가져온 `posts` 게시물들 중, 가장 작은 `number`를 가진 `posts`의 `number`를 나타냅니다.
 `hasNext`는 다음에 더 게시물을 가져올 수 있는지에 대한 답변입니다.
 
-#### POST /create (Auth, continue=false)
+#### POST /create
 
 게시글을 작성합니다.
 
