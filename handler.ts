@@ -45,12 +45,13 @@ exports.getVerifyQuestion = async (_: any, __: any, cb: Function) => {
 
   if (result == null)
     cb(null, createRes(404, { error: "not found", success: false }));
-
+  const id = result.getId();
+  const { question } = result;
   cb(
     null,
     createRes(200, {
-      id: result.getId(),
-      question: result.question,
+      id: id,
+      question: question,
     })
   );
 };
