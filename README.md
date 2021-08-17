@@ -52,7 +52,7 @@ https://**baseurl**/**api**
 - request
 
 ```uri
-baselink/api/pist/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDING
+baselink/api/post/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDING
 ```
 
 `count`는 한번에 몇개를 가져올지를 나타냅니다.  
