@@ -1,5 +1,3 @@
-"use strict";
-
 import * as mongoose from "mongoose";
 import { sign } from "jsonwebtoken";
 
@@ -44,32 +42,28 @@ exports.getVerifyQuestion = async (_: any, __: any, cb: Function) => {
   const result = await verifierModel.findOne().skip(random).exec();
 
   if (result == null)
-    cb(null, createRes(404, { error: "not found", success: false }));
-  const id = result.getId();
+    return createRes(404, { error: "not found", success: false });
+
+  const id: string = result.getId();
   const { question } = result;
-  cb(
-    null,
-    createRes(200, {
-      id: id,
-      question: question,
-    })
-  );
+
+  return createRes(200, { id: id, question: question });
 };
 
 interface AuthParam {
   password: string;
 }
-exports.authAdmin = async (event: any, _: any, cb: Function) => {
+exports.authAdmin = async (event: any, _: any) => {
   const body: AuthParam = JSON.parse(event.body);
   if (body.password !== process.env.ADMIN_PASSWORD) {
-    cb(
-      null,
-      createRes(400, { error: "비밀번호가 잘못되었습니다.", success: false })
-    );
+    return createRes(400, {
+      error: "비밀번호가 잘못되었습니다.",
+      success: false,
+    });
   }
 
   const token = sign({ name: "admin" }, process.env.JWT_SECRET ?? "secure", {
     expiresIn: "3h",
   });
-  cb(null, createRes(200, { token: token, success: true }));
+  return createRes(200, { token: token, success: true });
 };

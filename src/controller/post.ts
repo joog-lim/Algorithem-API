@@ -91,7 +91,7 @@ export interface PatchPostForm {
   reason?: string;
 }
 export const patchPost = async (ctx: Context): Promise<void> => {
-  const body: PatchPostForm = ctx.request.body;
+  const body: PatchPostForm = ctx.request.body as PatchPostForm;
   let result;
 
   const post = await Post.findById(ctx.params.id);
@@ -127,14 +127,17 @@ export const patchPost = async (ctx: Context): Promise<void> => {
   ctx.status = 200;
   ctx.body = result.toJSON();
 };
-
+export interface DeletedForm {
+  reason?: string;
+}
 export const deletePost = async (ctx: Context): Promise<void> => {
   const isAdmin: boolean = ctx.state.isAdmin;
   const post = await Post.findById(ctx.params.arg);
   if (post == null) throw new createError.NotFound();
 
   if (!isAdmin) {
-    const reason: string = ctx.request.body.reason;
+    const body: DeletedForm = ctx.request.body as DeletedForm;
+    const { reason } = body;
     await post.setDeleted(reason);
     await sendDeleteMessage({
       coment: "제보 삭제 요청입니다.",
