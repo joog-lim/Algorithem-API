@@ -164,7 +164,7 @@ baselink/api/pist/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDI
 }
 ```
 
-#### /patch/{id}
+#### PATCH /patch/{id}
 
 `id`는 수정할 게시물의 고유 id값을 얘기합니다.
 
