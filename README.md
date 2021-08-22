@@ -33,6 +33,15 @@ $ yarn local
 
 ## API명세서
 
+게시물의 상태는 다음과 같이 네가지로 나뉩니다.
+
+```ts
+| "PENDING"
+| "ACCEPTED"
+| "REJECTED"
+| "DELETED"
+```
+
 헤더에 `Auth`가 들어갈 경우 관리자 세션이 필요합니다.
 하지만 `continue`가 `true`일 경우, 관리자 세션이 없어도 됩니다.
 
@@ -172,13 +181,28 @@ baselink/api/post/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDI
 
 ```json
 {
-    "status" : "ACCEPTED" # ACCEPTED, REJECTED, DELETED
+    "status" : "ACCEPTED", # ACCEPTED, REJECTED, DELETED
+    "title" : "제목", # ACCEPTED일 경우에만
+    "content" : "내용", # ACCEPTED일 경우에만
     "reason" : "대충 이유 또는 사유"
 }
 ```
 
 ```json
-#TODO
+{
+  "createdAt": 1629643057303,
+  "title": "방학 도중 테스트",
+  "status": "ACCEPTED",
+  "_id": "6122613180d90600097bb43c",
+  "content": "코딩 싫어",
+  "tag": "test",
+  "number": 2,
+  "updatedAt": "2021-08-22T14:38:45.391Z",
+  "__v": 0,
+  "reason": "",
+  "cursorId": "6122613180d90600097bb43c",
+  "id": "6122613180d90600097bb43c"
+}
 ```
 
 ### /auth
