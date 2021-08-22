@@ -188,6 +188,8 @@ baselink/api/post/get-list?count=20&cursor=60b8407473d81a1b4cc591a5&status=PENDI
 }
 ```
 
+- response
+
 ```json
 {
   "createdAt": 1629643057303,
