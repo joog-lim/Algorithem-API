@@ -10,6 +10,27 @@ provider:
   region: ap-northeast-2
   stage: api
 
+resources:
+  Resources:
+    GatewayResponseDefault4XX:
+      Type: "AWS::ApiGateway::GatewayResponse"
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
+    GatewayResponseDefault5XX:
+      Type: "AWS::ApiGateway::GatewayResponse"
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
+
 functions:
   # hello:
   #   handler: handler.hello
@@ -25,20 +46,22 @@ functions:
       - http:
           path: post/get-list
           method: get
+          cors: true
       - http:
           path: post/create
           method: post
+          cors: true
       - http:
           path: post/patch/{id}
           method: patch
+          cors: true
       - http:
           path: post/delete/{arg}
           method: delete
+          cors: true
       # - http:
       #     path: /
       #     method: get
-    cors:
-      origin: "*"
 
   auth:
     handler: handler.authAdmin
@@ -46,16 +69,14 @@ functions:
       - http:
           path: auth
           method: post
-    cors:
-      origin: "*"
+          cors: true
   verify:
     handler: handler.getVerifyQuestion
     events:
       - http:
           path: verify
           method: get
-    cors:
-      origin: "*"
+          cors: true
 plugins:
   - serverless-plugin-typescript
   - serverless-dotenv-plugin
