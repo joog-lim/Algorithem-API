@@ -32,37 +32,47 @@ resources:
           Ref: "ApiGatewayRestApi"
 
 functions:
-  # hello:
-  #   handler: handler.hello
-  #   events:
-  #     - http:
-  #         path: /
-  #         method: get
-  #   cors:
-  #     origin: "*"
-  post:
-    handler: src/sls.handler
+  getAlgorithemList:
+    handler: src/handler.post.getAlgorithemList
     events:
       - http:
-          path: post/get-list
+          path: post/AlgorithemList
           method: get
           cors: true
+  createAlgorithem:
+    handler: src/handler.post.wirteAlogorithem
+    events:
       - http:
           path: post/create
           method: post
           cors: true
+  changeStatusAlgorithem:
+    handler: src/handler.post.setAlogorithemStatus
+    events:
       - http:
-          path: post/patch/{id}
+          path: post/setStatus/{id}
+          method: post
+  modifyAlgorithem:
+    handler: src/handler.post.modifyAlogirithemContent
+    events:
+      - http:
+          path: post/modify/{id}
           method: patch
           cors: true
+  reportAlgorithem:
+    handler: src/handler.post.reportAlogorithem
+    events:
       - http:
-          path: post/delete/{arg}
+          path: post/report{id}
+          method: patch
+          cors: true
+  deleteAlgorithem:
+    handler: src/handler.post.deleteAlgorithem
+    events:
+      - http:
+          path: post/delete/{id}
           method: delete
           cors: true
-      # - http:
-      #     path: /
-      #     method: get
-
   auth:
     handler: src/handler.authAdmin
     events:

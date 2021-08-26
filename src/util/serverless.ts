@@ -3,15 +3,15 @@ import { ResHTTPData } from "../DTO/http";
 export const createRes = (data: ResHTTPData) => {
   const { status, headers, body } = data;
   return {
-    statusCode: status,
+    statusCode: status ?? 200,
     headers: Object.assign(
       {},
       {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials": true,
       },
-      headers
+      headers ?? {}
     ),
-    body: JSON.stringify(body),
+    body: JSON.stringify(body ?? {}),
   };
 };

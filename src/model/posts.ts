@@ -68,13 +68,11 @@ export class Post {
 
   public async edit(
     this: DocumentType<Post>,
-    newTitle?: string,
-    newContent?: string,
-    newFBLink?: string
+    { title, content, tag }: AlgorithemDTO.OptionalBasePostForm
   ): Promise<DocumentType<Post>> {
-    this.title = newTitle ?? this.title;
-    this.content = newContent ?? this.content;
-    this.FBLink = newFBLink ?? this.FBLink;
+    this.title = title ?? this.title;
+    this.content = content ?? this.content;
+    this.tag = tag ?? this.tag;
     await this.save();
 
     return this;
