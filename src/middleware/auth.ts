@@ -1,57 +1,55 @@
-import * as createError from "http-errors";
+import { APIGatewayEvent } from "aws-lambda";
 import { verify } from "jsonwebtoken";
+import { MiddlewareDTO } from "../DTO";
+import { createRes } from "../util/serverless";
 
-export function authMiddleware(
-  continuous: boolean
-): (event: any, next: () => Promise<unknown>) => Promise<void> {
-  return async (event: any, next: () => Promise<unknown>): Promise<void> => {
+export function authMiddleware({
+  continuous,
+}: {
+  continuous: boolean;
+}): (
+  event: APIGatewayEvent,
+  next: (event: MiddlewareDTO.certifiedEvent) => Promise<unknown>
+) => Promise<unknown> {
+  return async (
+    event: APIGatewayEvent,
+    next: (event: MiddlewareDTO.certifiedEvent) => Promise<unknown>
+  ): Promise<unknown> => {
     // 인증헤더가 없을 경우
-    if (event.request.header.authorization == null) {
+    if (event.headers.authorization == null) {
       if (continuous) {
-        event.state.isAdmin = false;
-        await next();
-        return;
+        const newEvent = Object.assign({}, event, {
+          state: { isAdmin: false },
+        });
+        return await next(newEvent);
       } else {
-        throw new createError.Unauthorized();
+        return createRes({
+          status: 401,
+          headers: {},
+          body: { success: false, message: "인증되지 않은 유저입니다." },
+        });
       }
     }
 
+    let newEvent: MiddlewareDTO.certifiedEvent = event;
     try {
-      verify(
-        event.request.header.authorization,
-        process.env.JWT_SECRET ?? "secure"
-      );
-
-      event.state.isAdmin = true;
+      verify(event.headers.authorization, process.env.JWT_SECRET ?? "secure");
+      newEvent = Object.assign({}, event, {
+        state: { isAdmin: true },
+      });
     } catch (err) {
-      event.state.isAdmin = false;
+      newEvent = Object.assign({}, event, {
+        state: { isAdmin: false },
+      });
     }
 
-    if (!event.state.isAdmin && !continuous) {
-      throw new createError.Unauthorized();
+    if (!newEvent.state.isAdmin && !continuous) {
+      return createRes({
+        status: 401,
+        headers: {},
+        body: { success: false, message: "인증되지 않은 유저입니다." },
+      });
     }
-    await next();
+    return await next(newEvent);
   };
-}
-export async function statusCodeVerification(
-  event: any,
-  next: Function
-): Promise<void> {
-  try {
-    await next();
-    if (event.status >= 400) event.throw(event.status, event.message);
-  } catch (err) {
-    if (err.status != null) {
-      event.status = err.status;
-      event.body = {
-        error: err.message,
-      };
-    } else {
-      event.status = 500;
-      event.response.body = {
-        error: "Internal Server Error",
-      };
-      console.error(err);
-    }
-  }
 }

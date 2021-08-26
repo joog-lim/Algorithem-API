@@ -64,14 +64,14 @@ functions:
       #     method: get
 
   auth:
-    handler: handler.authAdmin
+    handler: src/handler.authAdmin
     events:
       - http:
           path: auth
           method: post
           cors: true
   verify:
-    handler: handler.getVerifyQuestion
+    handler: src/handler.getVerifyQuestion
     events:
       - http:
           path: verify

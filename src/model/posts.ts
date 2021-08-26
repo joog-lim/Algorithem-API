@@ -6,53 +6,9 @@ import {
 } from "@typegoose/typegoose";
 import { ModelType } from "@typegoose/typegoose/lib/types";
 import { Types, Schema } from "mongoose";
+import { AlgorithemDTO } from "../DTO";
+import { getPostsNumber } from "../util/post";
 
-export enum PostStatus {
-  Pending = "PENDING",
-  Accepted = "ACCEPTED",
-  Rejected = "REJECTED",
-  Deleted = "DELETED",
-}
-
-export interface FindPostsOptions {
-  admin: boolean;
-  status: PostStatus;
-}
-
-export interface PostRequestForm {
-  title: string;
-  content: string;
-  tag: string;
-  verifier: { id: string; answer: string };
-}
-export interface PublicPostFields {
-  id: string;
-  number?: number;
-  title: string;
-  content: string;
-  tag: string;
-  FBLink?: string;
-  createdAt: number;
-  status: string;
-}
-export interface DeletedPostFields extends PublicPostFields {
-  deleteReqNumber: number;
-}
-export interface SetStatusArg {
-  status: PostStatus;
-  reason?: string;
-}
-export const getPostsNumber: Function = async (
-  status: PostStatus
-): Promise<number> => {
-  const lastPost = (
-    await PostModel.find({ status: status })
-      .sort({ number: -1 })
-      .limit(1)
-      .exec()
-  )[0];
-  return (lastPost?.number ?? 0) + 1;
-};
 @modelOptions({
   schemaOptions: {
     timestamps: true,
@@ -87,8 +43,11 @@ export class Post {
   @prop({ required: true })
   public tag!: string;
 
-  @prop({ enum: PostStatus, default: PostStatus.Pending })
-  public status: PostStatus;
+  @prop({
+    enum: AlgorithemDTO.PostStatus,
+    default: AlgorithemDTO.PostStatus.Pending,
+  })
+  public status: AlgorithemDTO.PostStatus;
 
   @prop({ trim: true })
   public reason: string;
@@ -122,7 +81,7 @@ export class Post {
   }
   public async setStatus(
     this: DocumentType<Post>,
-    arg: SetStatusArg
+    arg: AlgorithemDTO.SetStatusArg
   ): Promise<DocumentType<Post>> {
     this.status = arg.status;
     this.number = await getPostsNumber(arg.status);
@@ -134,7 +93,7 @@ export class Post {
     this: DocumentType<Post>,
     reason: string
   ): Promise<DocumentType<Post>> {
-    this.status = PostStatus.Deleted;
+    this.status = AlgorithemDTO.PostStatus.Deleted;
     this.reason = reason ?? "";
     const lastDeletedReqNumber =
       (
@@ -150,7 +109,9 @@ export class Post {
     return this;
   }
 
-  public getPublicFields(this: DocumentType<Post>): PublicPostFields {
+  public getPublicFields(
+    this: DocumentType<Post>
+  ): AlgorithemDTO.PublicPostFields {
     return {
       id: this.id,
       number: this.number,
@@ -162,7 +123,9 @@ export class Post {
       status: this.status,
     };
   }
-  public getDeletedFields(this: DocumentType<Post>): DeletedPostFields {
+  public getDeletedFields(
+    this: DocumentType<Post>
+  ): AlgorithemDTO.DeletedPostFields {
     return {
       id: this.id,
       number: this.number,
@@ -179,17 +142,17 @@ export class Post {
     this: ModelType<Post> & typeof Post,
     count: number = 10,
     cursor: string = "0",
-    options: FindPostsOptions
+    options: AlgorithemDTO.FindPostsOptions
   ): Promise<Array<DocumentType<Post>>> {
     const isAdminAndNotPending =
-      options.admin && options.status !== PostStatus.Pending;
+      options.admin && options.status !== AlgorithemDTO.PostStatus.Pending;
     const condition = Object.assign(
-      options.status !== PostStatus.Accepted
+      options.status !== AlgorithemDTO.PostStatus.Accepted
         ? { status: options.status }
         : {
             $or: [
-              { status: PostStatus.Accepted },
-              { status: PostStatus.Deleted },
+              { status: AlgorithemDTO.PostStatus.Accepted },
+              { status: AlgorithemDTO.PostStatus.Deleted },
             ],
           },
       cursor
