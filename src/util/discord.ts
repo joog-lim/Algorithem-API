@@ -2,17 +2,11 @@ import axios from "axios";
 
 import { DiscordDTO, AlgorithemDTO } from "../DTO";
 
-interface GenerateMessage {
-  form: AlgorithemDTO.PostRequestForm;
-  coment: string;
-  color: number;
-}
-
 const generateWebhookMessage: Function = ({
   form,
   coment,
   color,
-}: GenerateMessage): DiscordDTO.SendDiscordWebhookMessage => {
+}: DiscordDTO.GenerateMessage): DiscordDTO.SendDiscordWebhookMessage => {
   const footerData: DiscordDTO.DiscordEmbedFooter = {
     text: form.tag,
     icon_url:
@@ -37,6 +31,37 @@ interface DiscordDeletedMessage {
   url: string;
   number: number;
 }
+
+export const sendNewAlgorithemMessage: Function = async (
+  data: AlgorithemDTO.PostRequestForm
+): Promise<void> => {
+  const embed: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
+    form: data,
+    coment: "새로운 알고리즘이 기다리고있습니다!",
+    color: 1752220,
+  });
+  await sendMessage(process.env.DISCORD_MANAGEMENT_WEBHOOK, embed);
+};
+
+export const sendChangeStatusMessage: Function = async (
+  data: AlgorithemDTO.PostRequestForm,
+  {
+    beforeStatus,
+    afterStatus,
+  }: {
+    beforeStatus: AlgorithemDTO.PostStatus;
+    afterStatus: AlgorithemDTO.PostStatus;
+  },
+  reason: string
+): Promise<void> => {
+  const changeReason = reason ? `\n변경 사유 : ${reason}` : "";
+  const embed: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
+    form: data,
+    coment: `해당 알고리즘의 상태가 업데이트됐습니다.\n${beforeStatus} -> ${afterStatus}${changeReason}`,
+    color: 15844367,
+  });
+  await sendMessage(process.env.DISCORD_MANAGEMENT_WEBHOOK, embed);
+};
 export const sendDeleteMessage: Function = async (
   arg: DiscordDeletedMessage
 ): Promise<void> => {
@@ -50,18 +75,6 @@ export const sendDeleteMessage: Function = async (
     color: 16711680,
   });
   await sendMessage(arg.url, embed);
-};
-
-export const sendUpdateMessage: Function = async (
-  form: AlgorithemDTO.PostRequestForm,
-  url: string
-): Promise<void> => {
-  const data: DiscordDTO.DiscordEmbed = generateWebhookMessage({
-    form: form,
-    coment: "새로운 알고리즘이 올라왔습니다!",
-    color: 65280,
-  });
-  await sendMessage(url, data);
 };
 
 const sendMessage: Function = async (

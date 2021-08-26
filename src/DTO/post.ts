@@ -43,3 +43,9 @@ export interface SetStatusArg {
   status: PostStatus;
   reason?: string;
 }
+
+export interface OptionalBasePostForm {
+  title?: string;
+  content?: string;
+  tag?: string;
+}

@@ -3,6 +3,7 @@ import { Base64 } from "js-base64";
 
 import { MiddlewareDTO, AlgorithemDTO } from "../../DTO";
 import { authMiddleware } from "../../middleware/auth";
+import Post from "../../model/posts";
 import verifieres from "../../model/verifieres";
 import { AlgorithemService } from "../../service";
 import { createRes } from "../../util/serverless";
@@ -68,14 +69,41 @@ export const setAlogorithemStatus: Function = async (
   __: any,
   ___: Function
 ) => {
-  return createRes({ status: 200, body: {}, headers: {} });
+  return await authMiddleware({ continuous: false })(
+    event,
+    async (event: MiddlewareDTO.certifiedEvent) => {
+      const { status } = JSON.parse(event.body);
+      const algorithemId: string = event.pathParameters.id;
+
+      const post = await Post.findById(algorithemId);
+      if (post == null)
+        return createRes({
+          status: 404,
+          body: { success: false, message: "알고리즘을 찾을 수 없습니다." },
+        });
+      const body = await AlgorithemService.AlgorithemStatusManage({
+        statud: status,
+        id: algorithemId,
+      });
+      return createRes({ status: 201, body: body, headers: {} });
+    }
+  );
 };
 export const modifyAlogirithemContent: Function = async (
   event: APIGatewayEvent,
   __: any,
   ___: Function
 ) => {
-  return createRes({ status: 200, body: {}, headers: {} });
+  return await authMiddleware({ continuous: false })(
+    event,
+    async (event: MiddlewareDTO.certifiedEvent) => {
+      const algorithemId: string = event.pathParameters.id;
+      const data: AlgorithemDTO.OptionalBasePostForm = JSON.parse(event.body);
+
+      const body = await AlgorithemService.PatchAlgorithem(algorithemId, data);
+      return createRes({ status: 200, body: body, headers: {} });
+    }
+  );
 };
 
 export const reportAlogorithem: Function = async (

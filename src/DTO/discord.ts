@@ -1,3 +1,5 @@
+import { PostRequestForm } from "./post";
+
 export interface DiscordObject {
   id: string;
 }
@@ -189,4 +191,10 @@ export interface DiscordRoleTags {
   bot_id?: string;
   integration_id?: string;
   premium_subscriber?: null;
+}
+
+export interface GenerateMessage {
+  form: PostRequestForm;
+  coment: string;
+  color: number;
 }
