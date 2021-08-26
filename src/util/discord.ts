@@ -1,6 +1,8 @@
 import axios from "axios";
+import { DocumentType } from "@typegoose/typegoose";
 
 import { DiscordDTO, AlgorithemDTO } from "../DTO";
+import { Post } from "../model/posts";
 
 const generateWebhookMessage: Function = ({
   form,
@@ -35,12 +37,12 @@ interface DiscordDeletedMessage {
 export const sendNewAlgorithemMessage: Function = async (
   data: AlgorithemDTO.PostRequestForm
 ): Promise<void> => {
-  const embed: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
+  const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
     form: data,
     coment: "새로운 알고리즘이 기다리고있습니다!",
     color: 1752220,
   });
-  await sendMessage(process.env.DISCORD_MANAGEMENT_WEBHOOK, embed);
+  await sendMessage(process.env.DISCORD_MANAGEMENT_WEBHOOK, message);
 };
 
 export const sendChangeStatusMessage: Function = async (
@@ -55,12 +57,27 @@ export const sendChangeStatusMessage: Function = async (
   reason: string
 ): Promise<void> => {
   const changeReason = reason ? `\n변경 사유 : ${reason}` : "";
-  const embed: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
+  const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
     form: data,
     coment: `해당 알고리즘의 상태가 업데이트됐습니다.\n${beforeStatus} -> ${afterStatus}${changeReason}`,
     color: 15844367,
   });
-  await sendMessage(process.env.DISCORD_MANAGEMENT_WEBHOOK, embed);
+  await sendMessage(process.env.DISCORD_MANAGEMENT_WEBHOOK, message);
+};
+
+export const algorithemDeleteEvenetMessage: Function = async (
+  post: DocumentType<Post>
+): Promise<void> => {
+  const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
+    form: {
+      title: post.title,
+      description: post.content,
+      tag: post.tag,
+    },
+    coment: `${post.number}번째 알고리즘이 삭제되었습니다.\n**삭제 사유** : ${post.reason}`,
+    color: 16711680,
+  });
+  await sendMessage(process.env.DISCORD_ABOUT_DELETE_WEBHOOK, message);
 };
 export const sendDeleteMessage: Function = async (
   arg: DiscordDeletedMessage

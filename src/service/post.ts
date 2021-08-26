@@ -4,6 +4,7 @@ import Post, { Post as PostModel } from "../model/posts";
 import {
   sendChangeStatusMessage,
   sendNewAlgorithemMessage,
+  algorithemDeleteEvenetMessage,
 } from "../util/discord";
 import { getCursor, getPostsNumber, replaceLtGtQuot } from "../util/post";
 
@@ -73,4 +74,32 @@ export const PatchAlgorithem: Function = async (
   data: AlgorithemDTO.OptionalBasePostForm
 ) => {
   return await Post.findById(id).edit(data);
+};
+
+export const DeleteAlgorithem: Function = async (
+  id: string,
+  reason: string
+) => {
+  const algorithem = await Post.findByIdAndRemove(id);
+  await algorithemDeleteEvenetMessage(algorithem, reason);
+  return algorithem;
+};
+
+export const SetDeleteStatus: Function = async (id: string, reason: string) => {
+  const algorithem = await (
+    await Post.findById(id)
+  ).setStatus({
+    status: AlgorithemDTO.PostStatus.Deleted,
+    reason: reason,
+  });
+  const { title, content, tag } = algorithem;
+  await sendChangeStatusMessage(
+    { title: title, content: content, tag: tag },
+    {
+      beforeStatus: AlgorithemDTO.PostStatus.Accepted,
+      afterStatus: status,
+    },
+    reason ?? undefined
+  );
+  return algorithem;
 };
