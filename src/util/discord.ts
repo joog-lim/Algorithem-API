@@ -1,10 +1,9 @@
 import axios from "axios";
 
-import { DiscordDTO } from "../DTO";
-import { PostRequestForm } from "../model/posts";
+import { DiscordDTO, AlgorithemDTO } from "../DTO";
 
 interface GenerateMessage {
-  form: PostRequestForm;
+  form: AlgorithemDTO.PostRequestForm;
   coment: string;
   color: number;
 }
@@ -52,8 +51,9 @@ export const sendDeleteMessage: Function = async (
   });
   await sendMessage(arg.url, embed);
 };
+
 export const sendUpdateMessage: Function = async (
-  form: PostRequestForm,
+  form: AlgorithemDTO.PostRequestForm,
   url: string
 ): Promise<void> => {
   const data: DiscordDTO.DiscordEmbed = generateWebhookMessage({

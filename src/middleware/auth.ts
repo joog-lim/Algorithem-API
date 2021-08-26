@@ -9,11 +9,11 @@ export function authMiddleware({
   continuous: boolean;
 }): (
   event: APIGatewayEvent,
-  next: (event: APIGatewayEvent & any) => Promise<unknown>
+  next: (event: MiddlewareDTO.certifiedEvent) => Promise<unknown>
 ) => Promise<unknown> {
   return async (
     event: APIGatewayEvent,
-    next: (event: APIGatewayEvent & any) => Promise<unknown>
+    next: (event: MiddlewareDTO.certifiedEvent) => Promise<unknown>
   ): Promise<unknown> => {
     // 인증헤더가 없을 경우
     if (event.headers.authorization == null) {
