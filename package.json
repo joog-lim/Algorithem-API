@@ -17,6 +17,7 @@
     "serverless-http": "^2.7.0"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.83",
     "@types/jsonwebtoken": "^8.5.5",
     "@types/mongoose": "^5.11.97",
     "serverless": "^2.56.0",
