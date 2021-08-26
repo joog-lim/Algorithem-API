@@ -1,27 +1,55 @@
-import * as Router from "koa-router";
-
+import { APIGatewayEvent } from "aws-lambda";
+import { MiddlewareDTO } from "../../DTO";
 import { authMiddleware } from "../../middleware/auth";
-import { validatorMiddleware } from "../../middleware/validator";
+import { createRes } from "../../util/serverless";
 
-import {
-  deletePost,
-  getPosts,
-  patchPost,
-  PatchPostForm,
-  writePost,
-} from "../../controller/post";
+export const getAlgorithemList: Function = async (
+  event: APIGatewayEvent,
+  __: any,
+  ___: Function
+) => {
+  return await authMiddleware({ continuous: true })(
+    event,
+    async (event: MiddlewareDTO.certifiedEvent) => {
+      return createRes({ status: 200, headers: {}, body: {} });
+    }
+  );
+};
 
-import { PostRequestForm } from "../../model/posts";
+export const wirteAlogorithem: Function = async (
+  event: APIGatewayEvent,
+  __: any,
+  ___: Function
+) => {
+  return createRes({ status: 200, body: {}, headers: {} });
+};
+export const setAlogorithemStatus: Function = async (
+  event: APIGatewayEvent,
+  __: any,
+  ___: Function
+) => {
+  return createRes({ status: 200, body: {}, headers: {} });
+};
+export const modifyAlogirithemContent: Function = async (
+  event: APIGatewayEvent,
+  __: any,
+  ___: Function
+) => {
+  return createRes({ status: 200, body: {}, headers: {} });
+};
 
-const post = new Router();
+export const reportAlogorithem: Function = async (
+  event: APIGatewayEvent,
+  __: any,
+  ___: Function
+) => {
+  return createRes({ status: 200, body: {}, headers: {} });
+};
 
-post.get("/get-list", authMiddleware(true), getPosts);
-post.post("/create", validatorMiddleware<PostRequestForm>(), writePost);
-post.patch(
-  "/patch/:id",
-  validatorMiddleware<PatchPostForm>(),
-  authMiddleware(false),
-  patchPost
-);
-post.delete("/delete/:arg", authMiddleware(true), deletePost);
-export default post;
+export const deleteAlgorithem: Function = async (
+  event: APIGatewayEvent,
+  __: any,
+  ___: Function
+) => {
+  return createRes({ status: 200, body: {}, headers: {} });
+};
