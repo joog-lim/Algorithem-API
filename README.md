@@ -32,4 +32,4 @@ $ yarn local
 ```
 
 ## API명세서
-### [v1 API](https://www.notion.so/API-v1-9ee6f33406b14ec1a2a42949adf08fec)
+### [v1 API](https://kindhearted-trillium-8f3.notion.site/API-v1-9ee6f33406b14ec1a2a42949adf08fec)
