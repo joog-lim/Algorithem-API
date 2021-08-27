@@ -28,7 +28,6 @@ export const GetAlgorithemList: Function = async (
         ? (value): AlgorithemDTO.PublicPostFields => value.getPublicFields()
         : (value): AlgorithemDTO.DeletedPostFields => value.getDeletedFields()
     ),
-    count: await Post.count(),
     cursor: await getCursor(posts, isAdmin),
     hasNext: posts.length === data.count,
   };
