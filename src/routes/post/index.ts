@@ -1,5 +1,6 @@
 import { APIGatewayEvent } from "aws-lambda";
 import { Base64 } from "js-base64";
+import * as mongoose from "mongoose";
 
 import { MiddlewareDTO, AlgorithemDTO } from "../../DTO";
 import { authMiddleware } from "../../middleware/auth";
@@ -9,10 +10,20 @@ import { AlgorithemService } from "../../service";
 import { createRes } from "../../util/serverless";
 
 export const getAlgorithemCountAtAll: Function = async (
-  event: APIGatewayEvent,
+  _: APIGatewayEvent,
   __: any,
   ___: Function
-) => {};
+) => {
+  mongoose
+    .connect(process.env.MONGO_URL ?? "")
+    .then((): void => console.log("MongoDB connected"))
+    .catch((err: Error): void =>
+      console.log("Failed to connect MongoDB: ", err)
+    );
+
+  const body = await AlgorithemService.GetKindOfAlgorithemCount();
+  return createRes({ status: 200, body: body });
+};
 
 export const getAlgorithemList: Function = async (
   event: APIGatewayEvent,
@@ -22,6 +33,12 @@ export const getAlgorithemList: Function = async (
   return await authMiddleware({ continuous: true })(
     event,
     async (event: MiddlewareDTO.certifiedEvent) => {
+      mongoose
+        .connect(process.env.MONGO_URL ?? "")
+        .then((): void => console.log("MongoDB connected"))
+        .catch((err: Error): void =>
+          console.log("Failed to connect MongoDB: ", err)
+        );
       const { count, cursor, status } = event.queryStringParameters;
       const data = await AlgorithemService.GetAlgorithemList(
         {
@@ -41,6 +58,12 @@ export const wirteAlogorithem: Function = async (
   __: any,
   ___: Function
 ) => {
+  mongoose
+    .connect(process.env.MONGO_URL ?? "")
+    .then((): void => console.log("MongoDB connected"))
+    .catch((err: Error): void =>
+      console.log("Failed to connect MongoDB: ", err)
+    );
   const { title, content, tag, verifier } = JSON.parse(event.body);
   const certified = await verifieres
     .findOne({ _id: Base64.decode(verifier.id) })
@@ -72,6 +95,12 @@ export const setAlogorithemStatus: Function = async (
   return await authMiddleware({ continuous: false })(
     event,
     async (event: MiddlewareDTO.certifiedEvent) => {
+      mongoose
+        .connect(process.env.MONGO_URL ?? "")
+        .then((): void => console.log("MongoDB connected"))
+        .catch((err: Error): void =>
+          console.log("Failed to connect MongoDB: ", err)
+        );
       const { status } = JSON.parse(event.body);
       if (
         status == AlgorithemDTO.PostStatus.Pending ||
@@ -110,6 +139,12 @@ export const modifyAlogirithemContent: Function = async (
   return await authMiddleware({ continuous: false })(
     event,
     async (event: MiddlewareDTO.certifiedEvent) => {
+      mongoose
+        .connect(process.env.MONGO_URL ?? "")
+        .then((): void => console.log("MongoDB connected"))
+        .catch((err: Error): void =>
+          console.log("Failed to connect MongoDB: ", err)
+        );
       const algorithemId: string = event.pathParameters.id;
       const data: AlgorithemDTO.OptionalBasePostForm = JSON.parse(event.body);
 
@@ -124,6 +159,12 @@ export const reportAlogorithem: Function = async (
   __: any,
   ___: Function
 ) => {
+  mongoose
+    .connect(process.env.MONGO_URL ?? "")
+    .then((): void => console.log("MongoDB connected"))
+    .catch((err: Error): void =>
+      console.log("Failed to connect MongoDB: ", err)
+    );
   const data: { reason: string } = JSON.parse(event.body);
   const id = event.pathParameters.id;
   const body = await AlgorithemService.SetDeleteStatus(id, data.reason);
@@ -138,6 +179,12 @@ export const deleteAlgorithem: Function = async (
   return await authMiddleware({ continuous: false })(
     event,
     async (event: MiddlewareDTO.certifiedEvent) => {
+      mongoose
+        .connect(process.env.MONGO_URL ?? "")
+        .then((): void => console.log("MongoDB connected"))
+        .catch((err: Error): void =>
+          console.log("Failed to connect MongoDB: ", err)
+        );
       const algorithemId: string = event.pathParameters.id;
       const data: { reason: string } = JSON.parse(event.body);
 

@@ -8,6 +8,12 @@ import {
 } from "../util/discord";
 import { getCursor, getPostsNumber, replaceLtGtQuot } from "../util/post";
 
+export const GetKindOfAlgorithemCount: Function = async () => {
+  const data = await Post.aggregate([
+    { $group: { _id: "$status", count: { $sum: 1 } } },
+  ]);
+  return data;
+};
 export const GetAlgorithemList: Function = async (
   data: AlgorithemDTO.GetListParam,
   { isAdmin }: { isAdmin: boolean }
@@ -97,7 +103,7 @@ export const SetDeleteStatus: Function = async (id: string, reason: string) => {
     { title: title, content: content, tag: tag },
     {
       beforeStatus: AlgorithemDTO.PostStatus.Accepted,
-      afterStatus: status,
+      afterStatus: AlgorithemDTO.PostStatus.Deleted,
     },
     reason ?? undefined
   );

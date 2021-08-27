@@ -136,6 +136,12 @@ export class Post {
       deleteReqNumber: this.deleteReqNumber ?? 0,
     };
   }
+  public static async getKindOfCount(this: ModelType<Post> & typeof Post) {
+    const arggregateArgument = [
+      { $group: { _id: "$status", count: { $sum: 1 } } },
+    ];
+    return await this.aggregate(arggregateArgument);
+  }
   public static async getList(
     this: ModelType<Post> & typeof Post,
     count: number = 10,
