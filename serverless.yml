@@ -8,7 +8,7 @@ provider:
   runtime: nodejs14.x
   lambdaHashingVersion: 20201221
   region: ap-northeast-2
-  stage: api
+  stage: api/v2
 
 resources:
   Resources:
