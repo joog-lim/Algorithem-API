@@ -120,6 +120,16 @@ export const setAlogorithemStatus: Function = async (
           },
         });
       }
+      if (!AlgorithemDTO.PostStatusArray.includes(status)) {
+        return createRes({
+          status: 400,
+          body: {
+            success: false,
+            message:
+              "status값이 부적절합니다.\nstatus값에 오타가 없는지 확인해주시길 바랍니다.",
+          },
+        });
+      }
       if (
         status == AlgorithemDTO.PostStatus.Pending ||
         status == AlgorithemDTO.PostStatus.Deleted
@@ -133,6 +143,7 @@ export const setAlogorithemStatus: Function = async (
           },
         });
       }
+
       const algorithemId: string = event.pathParameters.id;
 
       const post = await Post.findById(algorithemId);

@@ -55,7 +55,7 @@ export const AlgorithemStatusManage: Function = async ({
   algorithem,
   reason,
 }: {
-  status: AlgorithemDTO.PostStatus;
+  status: AlgorithemDTO.PostStatusType;
   algorithem: DocumentType<PostModel>;
   reason?: string;
 }) => {

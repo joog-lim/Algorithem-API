@@ -1,7 +1,7 @@
 export interface GetListParam {
   count: number;
   cursor: string;
-  status: PostStatus;
+  status: PostStatusType;
 }
 
 export const PostStatus = {
@@ -10,11 +10,16 @@ export const PostStatus = {
   Rejected: "REJECTED",
   Deleted: "DELETED",
 } as const;
-export type PostStatus = typeof PostStatus[keyof typeof PostStatus];
-
+export type PostStatusType = typeof PostStatus[keyof typeof PostStatus];
+export const PostStatusArray = [
+  "PENDING",
+  "ACCEPTED",
+  "REJECTED",
+  "DELETED",
+] as const;
 export interface FindPostsOptions {
   admin: boolean;
-  status: PostStatus;
+  status: PostStatusType;
 }
 
 export interface PostRequestForm {
@@ -40,7 +45,7 @@ export interface DeletedPostFields extends PublicPostFields {
   deleteReqNumber: number;
 }
 export interface SetStatusArg {
-  status: PostStatus;
+  status: PostStatusType;
   reason?: string;
 }
 

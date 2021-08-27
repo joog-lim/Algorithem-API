@@ -51,8 +51,8 @@ export const sendChangeStatusMessage: Function = async (
     beforeStatus,
     afterStatus,
   }: {
-    beforeStatus: AlgorithemDTO.PostStatus;
-    afterStatus: AlgorithemDTO.PostStatus;
+    beforeStatus: AlgorithemDTO.PostStatusType;
+    afterStatus: AlgorithemDTO.PostStatusType;
   },
   reason: string
 ): Promise<void> => {
