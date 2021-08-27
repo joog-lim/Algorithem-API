@@ -92,12 +92,7 @@ export const DeleteAlgorithem: Function = async (
 };
 
 export const SetDeleteStatus: Function = async (id: string, reason: string) => {
-  const algorithem = await (
-    await Post.findById(id)
-  ).setStatus({
-    status: AlgorithemDTO.PostStatus.Deleted,
-    reason: reason,
-  });
+  const algorithem = await (await Post.findById(id)).setDeleted(reason);
   const { title, content, tag } = algorithem;
   await sendChangeStatusMessage(
     { title: title, content: content, tag: tag },
