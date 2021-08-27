@@ -1,6 +1,7 @@
 import * as mongoose from "mongoose";
 
 import verifierModel from "../../model/verifieres";
+import { connectOptions } from "../../util/mongodb";
 import { createRes } from "../../util/serverless";
 
 export const getVerifyQuestion: Function = async (
@@ -9,7 +10,7 @@ export const getVerifyQuestion: Function = async (
   ___: Function
 ) => {
   mongoose
-    .connect(process.env.MONGO_URL ?? "")
+    .connect(process.env.MONGO_URL ?? "", connectOptions)
     .then((): void => console.log("MongoDB connected"))
     .catch((err: Error): void =>
       console.log("Failed to connect MongoDB: ", err)

@@ -7,6 +7,7 @@ import { authMiddleware } from "../../middleware/auth";
 import Post from "../../model/posts";
 import verifieres from "../../model/verifieres";
 import { AlgorithemService } from "../../service";
+import { connectOptions } from "../../util/mongodb";
 import { createRes } from "../../util/serverless";
 
 export const getAlgorithemCountAtAll: Function = async (
@@ -15,7 +16,7 @@ export const getAlgorithemCountAtAll: Function = async (
   ___: Function
 ) => {
   mongoose
-    .connect(process.env.MONGO_URL ?? "")
+    .connect(process.env.MONGO_URL ?? "", connectOptions)
     .then((): void => console.log("MongoDB connected"))
     .catch((err: Error): void =>
       console.log("Failed to connect MongoDB: ", err)
@@ -34,7 +35,7 @@ export const getAlgorithemList: Function = async (
     event,
     async (event: MiddlewareDTO.certifiedEvent) => {
       mongoose
-        .connect(process.env.MONGO_URL ?? "")
+        .connect(process.env.MONGO_URL ?? "", connectOptions)
         .then((): void => console.log("MongoDB connected"))
         .catch((err: Error): void =>
           console.log("Failed to connect MongoDB: ", err)
@@ -60,7 +61,7 @@ export const wirteAlogorithem: Function = async (
   ___: Function
 ) => {
   mongoose
-    .connect(process.env.MONGO_URL ?? "")
+    .connect(process.env.MONGO_URL ?? "", connectOptions)
     .then((): void => console.log("MongoDB connected"))
     .catch((err: Error): void =>
       console.log("Failed to connect MongoDB: ", err)
@@ -103,12 +104,22 @@ export const setAlogorithemStatus: Function = async (
     event,
     async (event: MiddlewareDTO.certifiedEvent) => {
       mongoose
-        .connect(process.env.MONGO_URL ?? "")
+        .connect(process.env.MONGO_URL ?? "", connectOptions)
         .then((): void => console.log("MongoDB connected"))
         .catch((err: Error): void =>
           console.log("Failed to connect MongoDB: ", err)
         );
-      const { status } = JSON.parse(event.body);
+      const { status, reason } = JSON.parse(event.body);
+      if (!status) {
+        return createRes({
+          status: 400,
+          body: {
+            success: false,
+            message:
+              "status값이 선언되지않았습니다.\n다시 값을 확인해주시길 바랍니다.",
+          },
+        });
+      }
       if (
         status == AlgorithemDTO.PostStatus.Pending ||
         status == AlgorithemDTO.PostStatus.Deleted
@@ -131,8 +142,9 @@ export const setAlogorithemStatus: Function = async (
           body: { success: false, message: "알고리즘을 찾을 수 없습니다." },
         });
       const body = await AlgorithemService.AlgorithemStatusManage({
-        statud: status,
-        id: algorithemId,
+        status: status,
+        algorithem: post,
+        reason: reason,
       });
       return createRes({ status: 201, body: body, headers: {} });
     }
@@ -147,7 +159,7 @@ export const modifyAlogirithemContent: Function = async (
     event,
     async (event: MiddlewareDTO.certifiedEvent) => {
       mongoose
-        .connect(process.env.MONGO_URL ?? "")
+        .connect(process.env.MONGO_URL ?? "", connectOptions)
         .then((): void => console.log("MongoDB connected"))
         .catch((err: Error): void =>
           console.log("Failed to connect MongoDB: ", err)
@@ -167,7 +179,7 @@ export const reportAlogorithem: Function = async (
   ___: Function
 ) => {
   mongoose
-    .connect(process.env.MONGO_URL ?? "")
+    .connect(process.env.MONGO_URL ?? "", connectOptions)
     .then((): void => console.log("MongoDB connected"))
     .catch((err: Error): void =>
       console.log("Failed to connect MongoDB: ", err)
@@ -187,7 +199,7 @@ export const deleteAlgorithem: Function = async (
     event,
     async (event: MiddlewareDTO.certifiedEvent) => {
       mongoose
-        .connect(process.env.MONGO_URL ?? "")
+        .connect(process.env.MONGO_URL ?? "", connectOptions)
         .then((): void => console.log("MongoDB connected"))
         .catch((err: Error): void =>
           console.log("Failed to connect MongoDB: ", err)
