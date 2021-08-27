@@ -15,3 +15,23 @@ export const createRes = (data: ResHTTPData) => {
     body: JSON.stringify(body ?? {}),
   };
 };
+
+export const createErrorRes = ({
+  status,
+  message,
+}: {
+  status: number;
+  message: string;
+}) => {
+  return {
+    statusCode: status ?? 400,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Credentials": true,
+    },
+    body: JSON.stringify({
+      success: false,
+      message: message ?? "요청이 부적절합니다.",
+    }),
+  };
+};

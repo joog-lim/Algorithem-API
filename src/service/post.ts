@@ -85,7 +85,7 @@ export const PatchAlgorithem: Function = async (
   id: string,
   data: AlgorithemDTO.OptionalBasePostForm
 ) => {
-  return await Post.findById(id).edit(data);
+  return await (await Post.findById(id)).edit(data);
 };
 
 export const DeleteAlgorithem: Function = async (
