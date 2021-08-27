@@ -72,6 +72,13 @@ export const AlgorithemStatusManage: Function = async ({
     { beforeStatus: beforeStatus, afterStatus: status },
     reason ?? undefined
   );
+  return {
+    title: title,
+    content: content,
+    tag: tag,
+    beforeStatus: beforeStatus,
+    afterStatus: status,
+  };
 };
 
 export const PatchAlgorithem: Function = async (
