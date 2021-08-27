@@ -40,7 +40,7 @@ export const getAlgorithemList: Function = async (
         .catch((err: Error): void =>
           console.log("Failed to connect MongoDB: ", err)
         );
-      console.log(event.state.isAdmin);
+
       const { count, cursor, status } = event.queryStringParameters;
       const data = await AlgorithemService.GetAlgorithemList(
         {
