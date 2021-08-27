@@ -32,42 +32,49 @@ resources:
           Ref: "ApiGatewayRestApi"
 
 functions:
+  getKindOfAlgorithemCount:
+    handler: src/handler.getAlgorithemCountAtAll
+    events:
+      - http:
+          path: post/count
+          method: get
+          cors: true
   getAlgorithemList:
-    handler: src/handler.post.getAlgorithemList
+    handler: src/handler.getAlgorithemList
     events:
       - http:
           path: post/AlgorithemList
           method: get
           cors: true
   createAlgorithem:
-    handler: src/handler.post.wirteAlogorithem
+    handler: src/handler.wirteAlogorithem
     events:
       - http:
           path: post/create
           method: post
           cors: true
   changeStatusAlgorithem:
-    handler: src/handler.post.setAlogorithemStatus
+    handler: src/handler.setAlogorithemStatus
     events:
       - http:
           path: post/setStatus/{id}
           method: post
   modifyAlgorithem:
-    handler: src/handler.post.modifyAlogirithemContent
+    handler: src/handler.modifyAlogirithemContent
     events:
       - http:
           path: post/modify/{id}
           method: patch
           cors: true
   reportAlgorithem:
-    handler: src/handler.post.reportAlogorithem
+    handler: src/handler.reportAlogorithem
     events:
       - http:
-          path: post/report{id}
+          path: post/report/{id}
           method: patch
           cors: true
   deleteAlgorithem:
-    handler: src/handler.post.deleteAlgorithem
+    handler: src/handler.deleteAlgorithem
     events:
       - http:
           path: post/delete/{id}
