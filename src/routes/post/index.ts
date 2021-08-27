@@ -39,6 +39,7 @@ export const getAlgorithemList: Function = async (
         .catch((err: Error): void =>
           console.log("Failed to connect MongoDB: ", err)
         );
+      console.log(event.state.isAdmin);
       const { count, cursor, status } = event.queryStringParameters;
       const data = await AlgorithemService.GetAlgorithemList(
         {
@@ -65,6 +66,12 @@ export const wirteAlogorithem: Function = async (
       console.log("Failed to connect MongoDB: ", err)
     );
   const { title, content, tag, verifier } = JSON.parse(event.body);
+  if (!title || !content || !tag) {
+    return createRes({
+      status: 400,
+      body: { success: false, message: "필숫값이 제대로 전달되지 않았습니다." },
+    });
+  }
   const certified = await verifieres
     .findOne({ _id: Base64.decode(verifier.id) })
     .exec();

@@ -16,7 +16,7 @@ export const GetKindOfAlgorithemCount: Function = async () => {
 };
 export const GetAlgorithemList: Function = async (
   data: AlgorithemDTO.GetListParam,
-  { isAdmin }: { isAdmin: boolean }
+  isAdmin: boolean
 ) => {
   const posts = await Post.getList(data.count, data.cursor, {
     admin: isAdmin,
