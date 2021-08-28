@@ -19,7 +19,7 @@ export const getCursor = async (
 };
 
 export const getPostsNumber: Function = async (
-  status: AlgorithemDTO.PostStatus
+  status: AlgorithemDTO.PostStatusType
 ): Promise<number> => {
   const lastPost = (
     await PostModel.find({ status: status })

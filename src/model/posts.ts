@@ -47,7 +47,7 @@ export class Post {
     enum: AlgorithemDTO.PostStatus,
     default: AlgorithemDTO.PostStatus.Pending,
   })
-  public status: AlgorithemDTO.PostStatus;
+  public status: AlgorithemDTO.PostStatusType;
 
   @prop({ trim: true })
   public reason: string;

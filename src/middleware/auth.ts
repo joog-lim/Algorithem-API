@@ -26,7 +26,7 @@ export function authMiddleware({
         return createRes({
           status: 401,
           headers: {},
-          body: { success: false, message: "인증되지 않은 유저입니다.\n 1" },
+          body: { success: false, message: "인증되지 않은 유저입니다.\n" },
         });
       }
     }

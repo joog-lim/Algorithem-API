@@ -8,7 +8,7 @@ provider:
   runtime: nodejs14.x
   lambdaHashingVersion: 20201221
   region: ap-northeast-2
-  stage: api
+  stage: apiV2
 
 resources:
   Resources:
@@ -57,27 +57,27 @@ functions:
     handler: src/handler.setAlogorithemStatus
     events:
       - http:
-          path: post/setStatus/{id}
+          path: post/{id}/setStatus
           method: post
   modifyAlgorithem:
     handler: src/handler.modifyAlogirithemContent
     events:
       - http:
-          path: post/modify/{id}
+          path: post/{id}/modify
           method: patch
           cors: true
   reportAlgorithem:
     handler: src/handler.reportAlogorithem
     events:
       - http:
-          path: post/report/{id}
+          path: post/{id}/report
           method: patch
           cors: true
   deleteAlgorithem:
     handler: src/handler.deleteAlgorithem
     events:
       - http:
-          path: post/delete/{id}
+          path: post/{id}/delete
           method: delete
           cors: true
   auth:

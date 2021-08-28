@@ -16,7 +16,7 @@ export const GetKindOfAlgorithemCount: Function = async () => {
 };
 export const GetAlgorithemList: Function = async (
   data: AlgorithemDTO.GetListParam,
-  { isAdmin }: { isAdmin: boolean }
+  isAdmin: boolean
 ) => {
   const posts = await Post.getList(data.count, data.cursor, {
     admin: isAdmin,
@@ -28,7 +28,6 @@ export const GetAlgorithemList: Function = async (
         ? (value): AlgorithemDTO.PublicPostFields => value.getPublicFields()
         : (value): AlgorithemDTO.DeletedPostFields => value.getDeletedFields()
     ),
-    count: await Post.count(),
     cursor: await getCursor(posts, isAdmin),
     hasNext: posts.length === data.count,
   };
@@ -56,7 +55,7 @@ export const AlgorithemStatusManage: Function = async ({
   algorithem,
   reason,
 }: {
-  status: AlgorithemDTO.PostStatus;
+  status: AlgorithemDTO.PostStatusType;
   algorithem: DocumentType<PostModel>;
   reason?: string;
 }) => {
@@ -73,13 +72,20 @@ export const AlgorithemStatusManage: Function = async ({
     { beforeStatus: beforeStatus, afterStatus: status },
     reason ?? undefined
   );
+  return {
+    title: title,
+    content: content,
+    tag: tag,
+    beforeStatus: beforeStatus,
+    afterStatus: status,
+  };
 };
 
 export const PatchAlgorithem: Function = async (
   id: string,
   data: AlgorithemDTO.OptionalBasePostForm
 ) => {
-  return await Post.findById(id).edit(data);
+  return await (await Post.findById(id)).edit(data);
 };
 
 export const DeleteAlgorithem: Function = async (
@@ -92,12 +98,7 @@ export const DeleteAlgorithem: Function = async (
 };
 
 export const SetDeleteStatus: Function = async (id: string, reason: string) => {
-  const algorithem = await (
-    await Post.findById(id)
-  ).setStatus({
-    status: AlgorithemDTO.PostStatus.Deleted,
-    reason: reason,
-  });
+  const algorithem = await (await Post.findById(id)).setDeleted(reason);
   const { title, content, tag } = algorithem;
   await sendChangeStatusMessage(
     { title: title, content: content, tag: tag },
