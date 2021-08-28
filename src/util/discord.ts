@@ -1,35 +1,15 @@
 import axios from "axios";
-import { PostRequestForm } from "../model/posts";
+import { DocumentType } from "@typegoose/typegoose";
 
-interface EmbedFooter {
-  text: string;
-  icon_url?: string;
-  proxy_icon_url?: string;
-}
-interface Embed {
-  title?: string;
-  type?: string;
-  description?: string;
-  url?: string;
-  color?: number;
-  footer?: EmbedFooter;
-}
-interface DiscordWebhookMessage {
-  content?: string;
-  embeds: [Embed];
-}
-interface GenerateMessage {
-  form: PostRequestForm;
-  coment: string;
-  color: number;
-}
+import { DiscordDTO, AlgorithemDTO } from "../DTO";
+import { Post } from "../model/posts";
 
-const generateMessage: Function = ({
+const generateWebhookMessage: Function = ({
   form,
   coment,
   color,
-}: GenerateMessage): DiscordWebhookMessage => {
-  const footerData: EmbedFooter = {
+}: DiscordDTO.GenerateMessage): DiscordDTO.SendDiscordWebhookMessage => {
+  const footerData: DiscordDTO.DiscordEmbedFooter = {
     text: form.tag,
     icon_url:
       "https://cdn.discordapp.com/avatars/826647881800351765/0493a57e7c5a21dd4e434a153d44938e.webp?size=128",
@@ -38,6 +18,7 @@ const generateMessage: Function = ({
     content: coment,
     embeds: [
       {
+        type: DiscordDTO.DiscordEmbedType.rich,
         title: form.title,
         description: form.content,
         footer: footerData,
@@ -52,10 +33,56 @@ interface DiscordDeletedMessage {
   url: string;
   number: number;
 }
+
+export const sendNewAlgorithemMessage: Function = async (
+  data: AlgorithemDTO.PostRequestForm
+): Promise<void> => {
+  const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
+    form: data,
+    coment: "새로운 알고리즘이 기다리고있습니다!",
+    color: 1752220,
+  });
+  await sendMessage(process.env.DISCORD_MANAGEMENT_WEBHOOK, message);
+};
+
+export const sendChangeStatusMessage: Function = async (
+  data: AlgorithemDTO.PostRequestForm,
+  {
+    beforeStatus,
+    afterStatus,
+  }: {
+    beforeStatus: AlgorithemDTO.PostStatusType;
+    afterStatus: AlgorithemDTO.PostStatusType;
+  },
+  reason: string
+): Promise<void> => {
+  const changeReason = reason ? `\n변경 사유 : ${reason}` : "";
+  const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
+    form: data,
+    coment: `해당 알고리즘의 상태가 업데이트됐습니다.\n${beforeStatus} -> ${afterStatus}${changeReason}`,
+    color: 15844367,
+  });
+  await sendMessage(process.env.DISCORD_MANAGEMENT_WEBHOOK, message);
+};
+
+export const algorithemDeleteEvenetMessage: Function = async (
+  post: DocumentType<Post>
+): Promise<void> => {
+  const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
+    form: {
+      title: post.title,
+      description: post.content,
+      tag: post.tag,
+    },
+    coment: `${post.number}번째 알고리즘이 삭제되었습니다.\n**삭제 사유** : ${post.reason}`,
+    color: 16711680,
+  });
+  await sendMessage(process.env.DISCORD_ABOUT_DELETE_WEBHOOK, message);
+};
 export const sendDeleteMessage: Function = async (
   arg: DiscordDeletedMessage
 ): Promise<void> => {
-  const embed: DiscordWebhookMessage = generateMessage({
+  const embed: DiscordDTO.DiscordEmbed = generateWebhookMessage({
     form: {
       title: arg.coment,
       description: arg.reason,
@@ -66,21 +93,10 @@ export const sendDeleteMessage: Function = async (
   });
   await sendMessage(arg.url, embed);
 };
-export const sendUpdateMessage: Function = async (
-  form: PostRequestForm,
-  url: string
-): Promise<void> => {
-  const data: DiscordWebhookMessage = generateMessage({
-    form: form,
-    coment: "새로운 알고리즘이 올라왔습니다!",
-    color: 65280,
-  });
-  await sendMessage(url, data);
-};
 
 const sendMessage: Function = async (
   url: string,
-  data: DiscordWebhookMessage
+  data: DiscordDTO.DiscordEmbed
 ): Promise<void> => {
   const res = await axios({
     method: "POST",
