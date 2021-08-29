@@ -105,47 +105,57 @@ export const setAlogorithemStatus: Function = async (
         .catch((err: Error): void =>
           console.log("Failed to connect MongoDB: ", err)
         );
-      const { status, reason } = JSON.parse(event.body);
+      try {
+        const { status, reason } = JSON.parse(event.body);
 
-      if (!status) {
-        return createErrorRes({
-          status: 400,
-          message:
-            "status값이 선언되지않았습니다.\n다시 값을 확인해주시길 바랍니다.",
-        });
-      }
-      if (!AlgorithemDTO.PostStatusArray.includes(status)) {
-        return createErrorRes({
-          status: 400,
-          message:
-            "status값이 부적절합니다.\nstatus값에 오타가 없는지 확인해주시길 바랍니다.",
-        });
-      }
-      if (
-        status == AlgorithemDTO.PostStatus.Pending ||
-        status == AlgorithemDTO.PostStatus.Deleted
-      ) {
-        return createErrorRes({
-          status: 404,
-          message:
-            "대기 상태나 삭제 상태로 교체할 수 없습니다.\n다른 API를 확인해주세요.",
-        });
-      }
+        if (!status) {
+          return createErrorRes({
+            status: 400,
+            message:
+              "status값이 선언되지않았습니다.\n다시 값을 확인해주시길 바랍니다.",
+          });
+        }
+        if (!AlgorithemDTO.PostStatusArray.includes(status)) {
+          return createErrorRes({
+            status: 400,
+            message:
+              "status값이 부적절합니다.\nstatus값에 오타가 없는지 확인해주시길 바랍니다.",
+          });
+        }
+        if (
+          status == AlgorithemDTO.PostStatus.Pending ||
+          status == AlgorithemDTO.PostStatus.Deleted
+        ) {
+          return createErrorRes({
+            status: 404,
+            message:
+              "대기 상태나 삭제 상태로 교체할 수 없습니다.\n다른 API를 확인해주세요.",
+          });
+        }
 
-      const algorithemId: string = event.pathParameters.id;
+        const algorithemId: string = event.pathParameters.id;
 
-      const post = await Post.findById(algorithemId);
-      if (post == null)
-        return createErrorRes({
-          status: 404,
-          message: "알고리즘을 찾을 수 없습니다.",
+        const post = await Post.findById(algorithemId);
+        if (post == null)
+          return createErrorRes({
+            status: 404,
+            message: "알고리즘을 찾을 수 없습니다.",
+          });
+        const body = await AlgorithemService.AlgorithemStatusManage({
+          status: status,
+          algorithem: post,
+          reason: reason,
         });
-      const body = await AlgorithemService.AlgorithemStatusManage({
-        status: status,
-        algorithem: post,
-        reason: reason,
-      });
-      return createRes({ status: 201, body: body, headers: {} });
+        return createRes({ status: 201, body: body, headers: {} });
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          return createErrorRes({
+            status: 400,
+            message: "JSON 형식으로 값을 넘겨주셔야합니다.",
+          });
+        }
+        throw error;
+      }
     }
   );
 };
