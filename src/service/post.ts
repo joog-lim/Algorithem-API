@@ -1,4 +1,6 @@
 import { DocumentType } from "@typegoose/typegoose";
+import { Schema } from "mongoose";
+
 import { AlgorithemDTO } from "../DTO";
 import Post, { Post as PostModel } from "../model/posts";
 import {
@@ -8,16 +10,18 @@ import {
 } from "../util/discord";
 import { getCursor, getPostsNumber, replaceLtGtQuot } from "../util/post";
 
-export const GetKindOfAlgorithemCount: Function = async () => {
-  const data = await Post.aggregate([
+export const getKindOfAlgorithemCount: Function = async (): Promise<
+  AlgorithemDTO.StatusCountList[]
+> => {
+  return await Post.aggregate([
     { $group: { _id: "$status", count: { $sum: 1 } } },
   ]);
-  return data;
 };
-export const GetAlgorithemList: Function = async (
+
+export const getAlgorithemList: Function = async (
   data: AlgorithemDTO.GetListParam,
   isAdmin: boolean
-) => {
+): Promise<AlgorithemDTO.AlgorithemList> => {
   const posts = await Post.getList(data.count, data.cursor, {
     admin: isAdmin,
     status: isAdmin ? data.status : AlgorithemDTO.PostStatus.Accepted,
@@ -33,11 +37,11 @@ export const GetAlgorithemList: Function = async (
   };
 };
 
-export const PostAlgorithem: Function = async ({
+export const postAlgorithem: Function = async ({
   title,
   content,
   tag,
-}: AlgorithemDTO.PostRequestForm) => {
+}: AlgorithemDTO.PostRequestForm): Promise<{ id: Schema.Types.ObjectId }> => {
   const newAlgorithem = new Post({
     title: title,
     content: replaceLtGtQuot(content),
@@ -50,7 +54,7 @@ export const PostAlgorithem: Function = async ({
   return { id: (await newAlgorithem)._id };
 };
 
-export const AlgorithemStatusManage: Function = async ({
+export const algorithemStatusManage: Function = async ({
   status,
   algorithem,
   reason,
@@ -58,7 +62,7 @@ export const AlgorithemStatusManage: Function = async ({
   status: AlgorithemDTO.PostStatusType;
   algorithem: DocumentType<PostModel>;
   reason?: string;
-}) => {
+}): Promise<AlgorithemDTO.ChangeStatusReturnValue> => {
   const beforeStatus = algorithem.status;
 
   const result = await algorithem.setStatus({ status: status });
@@ -81,23 +85,26 @@ export const AlgorithemStatusManage: Function = async ({
   };
 };
 
-export const PatchAlgorithem: Function = async (
+export const patchAlgorithem: Function = async (
   id: string,
   data: AlgorithemDTO.OptionalBasePostForm
-) => {
-  return await (await Post.findById(id)).edit(data);
+): Promise<AlgorithemDTO.PublicPostFields> => {
+  return await (await (await Post.findById(id)).edit(data)).getPublicFields();
 };
 
-export const DeleteAlgorithem: Function = async (
+export const deleteAlgorithem: Function = async (
   id: string,
   reason: string
-) => {
+): Promise<AlgorithemDTO.PublicPostFields> => {
   const algorithem = await Post.findByIdAndRemove(id);
   await algorithemDeleteEvenetMessage(algorithem, reason);
-  return algorithem;
+  return await algorithem.getPublicFields();
 };
 
-export const SetDeleteStatus: Function = async (id: string, reason: string) => {
+export const setDeleteStatus: Function = async (
+  id: string,
+  reason: string
+): Promise<AlgorithemDTO.PublicPostFields> => {
   const algorithem = await (await Post.findById(id)).setDeleted(reason);
   const { title, content, tag } = algorithem;
   await sendChangeStatusMessage(
@@ -108,5 +115,5 @@ export const SetDeleteStatus: Function = async (id: string, reason: string) => {
     },
     reason ?? undefined
   );
-  return algorithem;
+  return await algorithem.getPublicFields();
 };

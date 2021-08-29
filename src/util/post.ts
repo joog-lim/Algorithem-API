@@ -3,11 +3,11 @@ import { DocumentType } from "@typegoose/typegoose";
 import PostModel, { Post as PostClass } from "../model/posts";
 import { AlgorithemDTO } from "../DTO";
 
-export const replaceLtGtQuot = (text: string): string => {
+export const replaceLtGtQuot: Function = (text: string): string => {
   return text.replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;");
 };
 
-export const getCursor = async (
+export const getCursor: Function = async (
   posts: DocumentType<PostClass>[],
   isAdmin: boolean
 ): Promise<string> => {

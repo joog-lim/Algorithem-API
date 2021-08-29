@@ -1,6 +1,6 @@
-import { ResHTTPData } from "../DTO/http";
+import { CreateResInput, ReturnResHTTPData } from "../DTO/http";
 
-export const createRes = (data: ResHTTPData) => {
+export const createRes = (data: CreateResInput): ReturnResHTTPData => {
   const { status, headers, body } = data;
   return {
     statusCode: status ?? 200,
@@ -22,7 +22,7 @@ export const createErrorRes = ({
 }: {
   status: number;
   message: string;
-}) => {
+}): ReturnResHTTPData => {
   return {
     statusCode: status ?? 400,
     headers: {

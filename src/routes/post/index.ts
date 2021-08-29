@@ -3,6 +3,7 @@ import { Base64 } from "js-base64";
 import * as mongoose from "mongoose";
 
 import { MiddlewareDTO, AlgorithemDTO } from "../../DTO";
+import { ReturnResHTTPData } from "../../DTO/http";
 import { authMiddleware } from "../../middleware/auth";
 import Post from "../../model/posts";
 import verifieres from "../../model/verifieres";
@@ -14,23 +15,24 @@ export const getAlgorithemCountAtAll: Function = async (
   _: APIGatewayEvent,
   __: any,
   ___: Function
-) => {
+): Promise<ReturnResHTTPData> => {
   mongoose
     .connect(process.env.MONGO_URL ?? "", connectOptions)
     .then((): void => console.log("MongoDB connected"))
     .catch((err: Error): void =>
       console.log("Failed to connect MongoDB: ", err)
     );
-
-  const body = await AlgorithemService.GetKindOfAlgorithemCount();
-  return createRes({ status: 200, body: body });
+  // get Number of algorithms by type
+  const body = await AlgorithemService.getKindOfAlgorithemCount();
+  return createRes({ status: 200, body });
 };
 
 export const getAlgorithemList: Function = async (
   event: APIGatewayEvent,
   __: any,
   ___: Function
-) => {
+): Promise<ReturnResHTTPData> => {
+  // use middleware for authorized user
   return await authMiddleware({ continuous: true })(
     event,
     async (event: MiddlewareDTO.certifiedEvent) => {
@@ -41,8 +43,11 @@ export const getAlgorithemList: Function = async (
           console.log("Failed to connect MongoDB: ", err)
         );
 
+      // get parameter
       const { count, cursor, status } = event.queryStringParameters;
-      const data = await AlgorithemService.GetAlgorithemList(
+
+      //get algorithem list for return body value
+      const body = await AlgorithemService.getAlgorithemList(
         {
           count: Number(count ?? "10"),
           cursor: cursor ?? "0",
@@ -50,52 +55,63 @@ export const getAlgorithemList: Function = async (
         },
         event.state.isAdmin
       );
-      return createRes({ status: 200, headers: {}, body: data });
+      return createRes({ status: 200, body });
     }
   );
 };
 
+// Ability to publish algorithms for those who answered the question
 export const wirteAlogorithem: Function = async (
   event: APIGatewayEvent,
   __: any,
   ___: Function
-) => {
+): Promise<ReturnResHTTPData> => {
   mongoose
     .connect(process.env.MONGO_URL ?? "", connectOptions)
     .then((): void => console.log("MongoDB connected"))
     .catch((err: Error): void =>
       console.log("Failed to connect MongoDB: ", err)
     );
+
+  // get json type body values
   const { title, content, tag, verifier } = JSON.parse(event.body);
+
+  // value check
   if (!title || !content || !tag) {
     return createErrorRes({
       status: 400,
       message: "필숫값이 제대로 전달되지 않았습니다.",
     });
   }
+
+  // auth answers to questions
   const certified = await verifieres
     .findOne({ _id: Base64.decode(verifier.id) })
     .exec();
   if (!certified?.isCorrect(verifier.answer)) {
-    // verifier이 없거나, 있더라도 값이 올바르지않은 경우
+    // (don't have verifier) or (have verifier but isNotCorrect answer)
     return createErrorRes({
       status: 401,
       message: "인증을 실패하였습니다.",
     });
   }
-  const body = await AlgorithemService.PostAlgorithem({
+
+  // post algorithem
+  const body = await AlgorithemService.postAlgorithem({
     title: title,
     content: content,
     tag: tag,
   });
-  return createRes({ status: 200, body: body, headers: {} });
+  return createRes({ status: 200, body });
 };
 
+// renew algorithem's status
 export const setAlogorithemStatus: Function = async (
   event: APIGatewayEvent,
   __: any,
   ___: Function
-) => {
+): Promise<ReturnResHTTPData> => {
+  // use auth middleware for admin
   return await authMiddleware({ continuous: false })(
     event,
     async (event: MiddlewareDTO.certifiedEvent) => {
@@ -108,6 +124,7 @@ export const setAlogorithemStatus: Function = async (
       try {
         const { status, reason } = JSON.parse(event.body);
 
+        //check status value
         if (!status) {
           return createErrorRes({
             status: 400,
@@ -115,6 +132,8 @@ export const setAlogorithemStatus: Function = async (
               "status값이 선언되지않았습니다.\n다시 값을 확인해주시길 바랍니다.",
           });
         }
+
+        // check status value
         if (!AlgorithemDTO.PostStatusArray.includes(status)) {
           return createErrorRes({
             status: 400,
@@ -122,6 +141,8 @@ export const setAlogorithemStatus: Function = async (
               "status값이 부적절합니다.\nstatus값에 오타가 없는지 확인해주시길 바랍니다.",
           });
         }
+
+        // check algorithem status
         if (
           status == AlgorithemDTO.PostStatus.Pending ||
           status == AlgorithemDTO.PostStatus.Deleted
@@ -133,21 +154,26 @@ export const setAlogorithemStatus: Function = async (
           });
         }
 
+        // get algorithem id within path parameter
         const algorithemId: string = event.pathParameters.id;
 
-        const post = await Post.findById(algorithemId);
-        if (post == null)
+        // get algorithem by id
+        const algorithem = await Post.findById(algorithemId);
+
+        // is algorithem null?
+        if (algorithem == null)
           return createErrorRes({
             status: 404,
             message: "알고리즘을 찾을 수 없습니다.",
           });
-        const body = await AlgorithemService.AlgorithemStatusManage({
-          status: status,
-          algorithem: post,
-          reason: reason,
+        const body = await AlgorithemService.algorithemStatusManage({
+          status,
+          algorithem,
+          reason,
         });
-        return createRes({ status: 201, body: body, headers: {} });
+        return createRes({ status: 201, body });
       } catch (error) {
+        // check body is json
         if (error instanceof SyntaxError) {
           return createErrorRes({
             status: 400,
@@ -159,32 +185,37 @@ export const setAlogorithemStatus: Function = async (
     }
   );
 };
+
 export const modifyAlogirithemContent: Function = async (
   event: APIGatewayEvent,
   __: any,
   ___: Function
-) => {
+): Promise<ReturnResHTTPData> => {
+  // use auth middleware for admin
   return await authMiddleware({ continuous: false })(
     event,
-    async (event: MiddlewareDTO.certifiedEvent) => {
+    async (event: MiddlewareDTO.certifiedEvent): Promise<ReturnResHTTPData> => {
       mongoose
         .connect(process.env.MONGO_URL ?? "", connectOptions)
         .then((): void => console.log("MongoDB connected"))
         .catch((err: Error): void =>
           console.log("Failed to connect MongoDB: ", err)
         );
+      // get algorithem's id and modify values with path parameters and req body
       const algorithemId: string = event.pathParameters.id;
       const data: AlgorithemDTO.OptionalBasePostForm = JSON.parse(event.body);
-      let body = {};
+      let body = {}; // declare response body
       try {
-        body = await AlgorithemService.PatchAlgorithem(algorithemId, data);
+        // modify algorithem
+        body = await AlgorithemService.patchAlgorithem(algorithemId, data);
       } catch {
+        // catch notfound error
         return createErrorRes({
           status: 404,
           message: "해당 게시물을 찾을 수 없습니다.",
         });
       }
-      return createRes({ status: 200, body: body, headers: {} });
+      return createRes({ status: 200, body });
     }
   );
 };
@@ -193,41 +224,49 @@ export const reportAlogorithem: Function = async (
   event: APIGatewayEvent,
   __: any,
   ___: Function
-) => {
+): Promise<ReturnResHTTPData> => {
   mongoose
     .connect(process.env.MONGO_URL ?? "", connectOptions)
     .then((): void => console.log("MongoDB connected"))
     .catch((err: Error): void =>
       console.log("Failed to connect MongoDB: ", err)
     );
+
+  // get data
   const data: { reason: string } = JSON.parse(event.body);
   const id = event.pathParameters.id;
-  const body = await AlgorithemService.SetDeleteStatus(id, data.reason);
-  return createRes({ status: 200, body: body, headers: {} });
+
+  // set status with deleted
+  const body = await AlgorithemService.setDeleteStatus(id, data.reason);
+  return createRes({ status: 200, body });
 };
 
 export const deleteAlgorithem: Function = async (
   event: APIGatewayEvent,
   __: any,
   ___: Function
-) => {
+): Promise<ReturnResHTTPData> => {
+  // use middleware for admin
   return await authMiddleware({ continuous: false })(
     event,
-    async (event: MiddlewareDTO.certifiedEvent) => {
+    async (event: MiddlewareDTO.certifiedEvent): Promise<ReturnResHTTPData> => {
       mongoose
         .connect(process.env.MONGO_URL ?? "", connectOptions)
         .then((): void => console.log("MongoDB connected"))
         .catch((err: Error): void =>
           console.log("Failed to connect MongoDB: ", err)
         );
+
+      // get datas
       const algorithemId: string = event.pathParameters.id;
       const data: { reason: string } = JSON.parse(event.body);
 
-      const body = await AlgorithemService.DeleteAlgorithem(
+      // delete algorithem and get this algorithem information
+      const body = await AlgorithemService.deleteAlgorithem(
         algorithemId,
         data.reason ?? "규칙에 위반된 알고리즘이기에 삭제되었습니다."
       );
-      return createRes({ status: 200, body: body, headers: {} });
+      return createRes({ status: 200, body });
     }
   );
 };

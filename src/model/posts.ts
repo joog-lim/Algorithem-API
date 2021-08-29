@@ -53,9 +53,6 @@ export class Post {
   public reason: string;
 
   @prop()
-  public FBLink?: string;
-
-  @prop()
   public deleteReqNumber?: number;
 
   public get cursorId(): string {
@@ -116,7 +113,7 @@ export class Post {
       title: this.title,
       content: this.content,
       tag: this.tag,
-      FBLink: this.FBLink,
+
       createdAt: this.createdAt.getTime(),
       status: this.status,
     };
@@ -130,7 +127,6 @@ export class Post {
       title: this.title,
       content: this.content,
       tag: this.tag,
-      FBLink: this.FBLink,
       createdAt: this.createdAt.getTime(),
       status: this.status,
       deleteReqNumber: this.deleteReqNumber ?? 0,
