@@ -14,6 +14,7 @@ export const getKindOfAlgorithemCount: Function = async (): Promise<
   AlgorithemDTO.StatusCountList[]
 > => {
   return await Post.aggregate([
+    // count grouping status
     { $group: { _id: "$status", count: { $sum: 1 } } },
   ]);
 };
@@ -22,10 +23,13 @@ export const getAlgorithemList: Function = async (
   data: AlgorithemDTO.GetListParam,
   isAdmin: boolean
 ): Promise<AlgorithemDTO.AlgorithemList> => {
+  // get algorithem list
   const posts = await Post.getList(data.count, data.cursor, {
     admin: isAdmin,
     status: isAdmin ? data.status : AlgorithemDTO.PostStatus.Accepted,
   });
+
+  // separate algorithem list
   return {
     posts: posts.map(
       data.status !== AlgorithemDTO.PostStatus.Deleted
@@ -42,6 +46,7 @@ export const postAlgorithem: Function = async ({
   content,
   tag,
 }: AlgorithemDTO.PostRequestForm): Promise<{ id: Schema.Types.ObjectId }> => {
+  // post new algorithem
   const newAlgorithem = new Post({
     title: title,
     content: replaceLtGtQuot(content),
@@ -50,6 +55,7 @@ export const postAlgorithem: Function = async ({
     createdAt: new Date(),
   }).save();
 
+  // send message for discord log
   await sendNewAlgorithemMessage({ title, content, tag });
   return { id: (await newAlgorithem)._id };
 };
@@ -65,8 +71,11 @@ export const algorithemStatusManage: Function = async ({
 }): Promise<AlgorithemDTO.ChangeStatusReturnValue> => {
   const beforeStatus = algorithem.status;
 
+  // change algorithem status
   const result = await algorithem.setStatus({ status: status });
   const { title, content, tag } = result;
+
+  // send message for discord log
   await sendChangeStatusMessage(
     {
       title: title,
@@ -76,6 +85,7 @@ export const algorithemStatusManage: Function = async ({
     { beforeStatus: beforeStatus, afterStatus: status },
     reason ?? undefined
   );
+
   return {
     title: title,
     content: content,
@@ -89,6 +99,7 @@ export const patchAlgorithem: Function = async (
   id: string,
   data: AlgorithemDTO.OptionalBasePostForm
 ): Promise<AlgorithemDTO.PublicPostFields> => {
+  // update algorithem, and get public fields
   return await (await (await Post.findById(id)).edit(data)).getPublicFields();
 };
 
@@ -96,7 +107,10 @@ export const deleteAlgorithem: Function = async (
   id: string,
   reason: string
 ): Promise<AlgorithemDTO.PublicPostFields> => {
+  // find by and remove post with id
   const algorithem = await Post.findByIdAndRemove(id);
+
+  // send message for discord log
   await algorithemDeleteEvenetMessage(algorithem, reason);
   return await algorithem.getPublicFields();
 };
@@ -105,8 +119,11 @@ export const setDeleteStatus: Function = async (
   id: string,
   reason: string
 ): Promise<AlgorithemDTO.PublicPostFields> => {
+  // find algorithem and change status with deleted
   const algorithem = await (await Post.findById(id)).setDeleted(reason);
   const { title, content, tag } = algorithem;
+
+  // send message for discord log
   await sendChangeStatusMessage(
     { title: title, content: content, tag: tag },
     {

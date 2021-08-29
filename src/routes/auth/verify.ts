@@ -32,11 +32,12 @@ export const getVerifyQuestion: Function = async (
       message: "not found",
     });
 
+  // get return values
   const id: string = result.getId();
   const { question } = result;
 
   return createRes({
     status: 200,
-    body: { id: id, question: question },
+    body: { id, question },
   });
 };
