@@ -47,7 +47,7 @@ export const postAlgorithem: Function = async ({
   tag,
 }: AlgorithemDTO.PostRequestForm): Promise<{ id: Schema.Types.ObjectId }> => {
   // post new algorithem
-  const newAlgorithem = new Post({
+  const newAlgorithem = await new Post({
     title: title,
     content: replaceLtGtQuot(content),
     tag: tag,
@@ -57,7 +57,7 @@ export const postAlgorithem: Function = async ({
 
   // send message for discord log
   await sendNewAlgorithemMessage({ title, content, tag });
-  return { id: (await newAlgorithem)._id };
+  return { id: newAlgorithem._id };
 };
 
 export const algorithemStatusManage: Function = async ({
@@ -100,7 +100,7 @@ export const patchAlgorithem: Function = async (
   data: AlgorithemDTO.OptionalBasePostForm
 ): Promise<AlgorithemDTO.PublicPostFields> => {
   // update algorithem, and get public fields
-  return await (await (await Post.findById(id)).edit(data)).getPublicFields();
+  return (await (await Post.findById(id)).edit(data)).getPublicFields();
 };
 
 export const deleteAlgorithem: Function = async (
@@ -112,7 +112,7 @@ export const deleteAlgorithem: Function = async (
 
   // send message for discord log
   await algorithemDeleteEvenetMessage(algorithem, reason);
-  return await algorithem.getPublicFields();
+  return algorithem.getPublicFields();
 };
 
 export const setDeleteStatus: Function = async (
@@ -132,5 +132,5 @@ export const setDeleteStatus: Function = async (
     },
     reason ?? undefined
   );
-  return await algorithem.getPublicFields();
+  return algorithem.getPublicFields();
 };
