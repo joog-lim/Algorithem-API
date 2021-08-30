@@ -148,34 +148,38 @@ export class Post {
     // have admin and not equal status to PostStatus.Pending?
     const isAdminAndNotPending =
       options.admin && options.status !== AlgorithemDTO.PostStatus.Pending;
-
-    const condition = Object.assign(
-      options.status !== AlgorithemDTO.PostStatus.Accepted
-        ? { status: options.status }
-        : {
-            $or: [
-              { status: AlgorithemDTO.PostStatus.Accepted },
-              { status: AlgorithemDTO.PostStatus.Deleted },
-            ], // if status is Accepted, search Accepted and deleted
+    function getCondition() {
+      var statusCondition: Object = {};
+      if (options.status !== AlgorithemDTO.PostStatus.Accepted) {
+        statusCondition = { status: options.status };
+      } else {
+        statusCondition = {
+          $or: [
+            { status: AlgorithemDTO.PostStatus.Accepted },
+            { status: AlgorithemDTO.PostStatus.Deleted },
+          ], // if status is Accepted, search Accepted and deleted
+        };
+      }
+      var cursorCondition: Object = {};
+      if (cursor && options.admin) {
+        cursorCondition = {
+          _id: {
+            // if status is pending, desc cursor order
+            [isAdminAndNotPending ? "$lt" : "$gt"]: new Types.ObjectId(cursor),
+          }, // if user is admin, cursor is ObjectId
+        };
+      } else if (cursor) {
+        cursorCondition = {
+          number: {
+            $lt: parseInt(cursor), // if user is not admin, cursor is number
           },
-      cursor // if cursor is zero, it is not condition
-        ? options.admin
-          ? {
-              _id: {
-                // if status is pending, desc cursor order
-                [isAdminAndNotPending ? "$lt" : "$gt"]: new Types.ObjectId(
-                  cursor
-                ),
-              }, // if user is admin, cursor is ObjectId
-            }
-          : {
-              number: {
-                $lt: parseInt(cursor), // if user is not admin, cursor is number
-              },
-            } // cursor가 0이라면 status만 조건에 넣어준다.
-        : {}
-    );
-    return await this.find(condition)
+        }; // cursor가 0이라면 status만 조건에 넣어준다.
+      }
+      return function () {
+        return Object.assign({}, statusCondition, cursorCondition);
+      };
+    }
+    return await this.find(getCondition()())
       .sort(
         // if user isn't admin, desc number
         options.admin ? { _id: isAdminAndNotPending ? -1 : 1 } : { number: -1 }
