@@ -23,7 +23,8 @@ export const getAlgorithemCountAtAll: Function = async (
       console.log("Failed to connect MongoDB: ", err)
     );
   // get Number of algorithms by type
-  const body = await AlgorithemService.getKindOfAlgorithemCount();
+  const body: AlgorithemDTO.StatusCountList =
+    await AlgorithemService.getKindOfAlgorithemCount();
   return createRes({ status: 200, body });
 };
 

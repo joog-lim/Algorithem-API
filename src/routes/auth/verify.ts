@@ -1,7 +1,9 @@
+import { DocumentType } from "@typegoose/typegoose";
+import { BeAnObject } from "@typegoose/typegoose/lib/types";
 import * as mongoose from "mongoose";
 
 import { ReturnResHTTPData } from "../../DTO/http";
-import verifierModel from "../../model/verifieres";
+import verifierModel, { Verifier } from "../../model/verifieres";
 import { connectOptions } from "../../util/mongodb";
 import { createRes, createErrorRes } from "../../util/serverless";
 
@@ -19,11 +21,14 @@ export const getVerifyQuestion: Function = async (
     );
 
   // count verify question
-  const count = await verifierModel.estimatedDocumentCount({}).exec();
+  const count: number = await verifierModel.estimatedDocumentCount({}).exec();
   // get random value within count
-  const random = Math.floor(Math.random() * count);
+  const random: number = Math.floor(Math.random() * count);
   // get random question with random number
-  const result = await verifierModel.findOne().skip(random).exec();
+  const result: DocumentType<Verifier, BeAnObject> = await verifierModel
+    .findOne()
+    .skip(random)
+    .exec();
 
   // return notfound error
   if (result == null)

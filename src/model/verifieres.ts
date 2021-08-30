@@ -11,7 +11,7 @@ import { Base64 } from "js-base64";
     collection: "verifier",
   },
 })
-class Verifier {
+export class Verifier {
   public _id: string;
 
   @prop({ required: true })
