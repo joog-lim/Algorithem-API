@@ -17,6 +17,7 @@ export const PostStatusArray = [
   "REJECTED",
   "DELETED",
 ] as const;
+
 export interface FindPostsOptions {
   admin: boolean;
   status: PostStatusType;
@@ -37,7 +38,6 @@ export interface PublicPostFields {
   title: string;
   content: string;
   tag: string;
-  FBLink?: string;
   createdAt: number;
   status: string;
 }
@@ -53,4 +53,23 @@ export interface OptionalBasePostForm {
   title?: string;
   content?: string;
   tag?: string;
+}
+
+export interface StatusCountList {
+  _id: PostStatusType;
+  count: number;
+}
+
+export interface AlgorithemList {
+  posts: PublicPostFields[];
+  cursor: string;
+  hasNext: boolean;
+}
+
+export interface ChangeStatusReturnValue {
+  title: string;
+  content: string;
+  tag: string;
+  beforeStatus: PostStatusType;
+  afterStatus: PostStatusType;
 }

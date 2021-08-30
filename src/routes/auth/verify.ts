@@ -1,14 +1,18 @@
+import { DocumentType } from "@typegoose/typegoose";
+import { BeAnObject } from "@typegoose/typegoose/lib/types";
 import * as mongoose from "mongoose";
 
-import verifierModel from "../../model/verifieres";
+import { ReturnResHTTPData } from "../../DTO/http";
+import verifierModel, { Verifier } from "../../model/verifieres";
 import { connectOptions } from "../../util/mongodb";
-import { createRes } from "../../util/serverless";
+import { createRes, createErrorRes } from "../../util/serverless";
 
+// send verify question
 export const getVerifyQuestion: Function = async (
   _: any,
   __: any,
   ___: Function
-) => {
+): Promise<ReturnResHTTPData> => {
   mongoose
     .connect(process.env.MONGO_URL ?? "", connectOptions)
     .then((): void => console.log("MongoDB connected"))
@@ -16,23 +20,29 @@ export const getVerifyQuestion: Function = async (
       console.log("Failed to connect MongoDB: ", err)
     );
 
-  const count = await verifierModel.estimatedDocumentCount({}).exec();
-  const random = Math.floor(Math.random() * count);
-  const result = await verifierModel.findOne().skip(random).exec();
+  // count verify question
+  const count: number = await verifierModel.estimatedDocumentCount({}).exec();
+  // get random value within count
+  const random: number = Math.floor(Math.random() * count);
+  // get random question with random number
+  const result: DocumentType<Verifier, BeAnObject> = await verifierModel
+    .findOne()
+    .skip(random)
+    .exec();
 
+  // return notfound error
   if (result == null)
-    return createRes({
+    return createErrorRes({
       status: 404,
-      body: { error: "not found", success: false },
-      headers: {},
+      message: "not found",
     });
 
+  // get return values
   const id: string = result.getId();
   const { question } = result;
 
   return createRes({
     status: 200,
-    headers: {},
-    body: { id: id, question: question },
+    body: { id, question },
   });
 };

@@ -53,9 +53,6 @@ export class Post {
   public reason: string;
 
   @prop()
-  public FBLink?: string;
-
-  @prop()
   public deleteReqNumber?: number;
 
   public get cursorId(): string {
@@ -82,17 +79,23 @@ export class Post {
     arg: AlgorithemDTO.SetStatusArg
   ): Promise<DocumentType<Post>> {
     this.status = arg.status;
+
+    // Get state-specific values
     this.number = await getPostsNumber(arg.status);
+
     this.reason = arg.reason ?? "";
     await this.save();
     return this;
   }
+
   public async setDeleted(
     this: DocumentType<Post>,
     reason: string
   ): Promise<DocumentType<Post>> {
     this.status = AlgorithemDTO.PostStatus.Deleted;
     this.reason = reason ?? "";
+
+    // get lastest deleted post's number
     const lastDeletedReqNumber =
       (
         await PostModel.find({
@@ -102,6 +105,7 @@ export class Post {
           .limit(1)
           .exec()
       )[0]?.deleteReqNumber ?? 0;
+
     this.deleteReqNumber = lastDeletedReqNumber + 1;
     await this.save();
     return this;
@@ -116,7 +120,7 @@ export class Post {
       title: this.title,
       content: this.content,
       tag: this.tag,
-      FBLink: this.FBLink,
+
       createdAt: this.createdAt.getTime(),
       status: this.status,
     };
@@ -130,17 +134,10 @@ export class Post {
       title: this.title,
       content: this.content,
       tag: this.tag,
-      FBLink: this.FBLink,
       createdAt: this.createdAt.getTime(),
       status: this.status,
       deleteReqNumber: this.deleteReqNumber ?? 0,
     };
-  }
-  public static async getKindOfCount(this: ModelType<Post> & typeof Post) {
-    const arggregateArgument = [
-      { $group: { _id: "$status", count: { $sum: 1 } } },
-    ];
-    return await this.aggregate(arggregateArgument);
   }
   public static async getList(
     this: ModelType<Post> & typeof Post,
@@ -148,40 +145,47 @@ export class Post {
     cursor: string = "0",
     options: AlgorithemDTO.FindPostsOptions
   ): Promise<Array<DocumentType<Post>>> {
+    // have admin and not equal status to PostStatus.Pending?
     const isAdminAndNotPending =
       options.admin && options.status !== AlgorithemDTO.PostStatus.Pending;
-    const condition = Object.assign(
-      options.status !== AlgorithemDTO.PostStatus.Accepted
-        ? { status: options.status }
-        : {
-            $or: [
-              { status: AlgorithemDTO.PostStatus.Accepted },
-              { status: AlgorithemDTO.PostStatus.Deleted },
-            ],
+    function getCondition() {
+      var statusCondition: Object = {};
+      if (options.status !== AlgorithemDTO.PostStatus.Accepted) {
+        statusCondition = { status: options.status };
+      } else {
+        statusCondition = {
+          $or: [
+            { status: AlgorithemDTO.PostStatus.Accepted },
+            { status: AlgorithemDTO.PostStatus.Deleted },
+          ], // if status is Accepted, search Accepted and deleted
+        };
+      }
+      var cursorCondition: Object = {};
+      if (cursor && options.admin) {
+        cursorCondition = {
+          _id: {
+            // if status is pending, desc cursor order
+            [isAdminAndNotPending ? "$lt" : "$gt"]: new Types.ObjectId(cursor),
+          }, // if user is admin, cursor is ObjectId
+        };
+      } else if (cursor) {
+        cursorCondition = {
+          number: {
+            $lt: parseInt(cursor), // if user is not admin, cursor is number
           },
-      cursor
-        ? options.admin // cursor가 0이 아닐 경우 각 각 조건을 넣어줌
-          ? {
-              _id: {
-                [isAdminAndNotPending ? "$lt" : "$gt"]: new Types.ObjectId(
-                  cursor
-                ),
-              },
-            }
-          : {
-              number: {
-                $lt: parseInt(cursor),
-              },
-            } // cursor가 0이라면 status만 조건에 넣어준다.
-        : {}
-    );
-    const posts = await this.find(condition)
+        }; // cursor가 0이라면 status만 조건에 넣어준다.
+      }
+      return function () {
+        return Object.assign({}, statusCondition, cursorCondition);
+      };
+    }
+    return await this.find(getCondition()())
       .sort(
+        // if user isn't admin, desc number
         options.admin ? { _id: isAdminAndNotPending ? -1 : 1 } : { number: -1 }
-      )
-      .limit(count)
+      ) // if user is admin and status is Pending, asc objectId
+      .limit(count) // limited count is arg count
       .exec();
-    return posts;
   }
 }
 const PostModel = getModelForClass(Post);

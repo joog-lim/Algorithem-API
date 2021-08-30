@@ -1,21 +1,23 @@
 import { APIGatewayEvent } from "aws-lambda";
 import { verify } from "jsonwebtoken";
 import { MiddlewareDTO } from "../DTO";
-import { createRes } from "../util/serverless";
+import { ReturnResHTTPData } from "../DTO/http";
+import { createErrorRes, createRes } from "../util/serverless";
 
+// add state.isAdmin for authorized user
 export function authMiddleware({
   continuous,
 }: {
   continuous: boolean;
 }): (
   event: APIGatewayEvent,
-  next: (event: MiddlewareDTO.certifiedEvent) => Promise<unknown>
-) => Promise<unknown> {
+  next: (event: MiddlewareDTO.certifiedEvent) => Promise<ReturnResHTTPData>
+) => Promise<ReturnResHTTPData> {
   return async (
     event: APIGatewayEvent,
-    next: (event: MiddlewareDTO.certifiedEvent) => Promise<unknown>
-  ): Promise<unknown> => {
-    // 인증헤더가 없을 경우
+    next: (event: MiddlewareDTO.certifiedEvent) => Promise<ReturnResHTTPData>
+  ): Promise<ReturnResHTTPData> => {
+    // don't have authorization header
     if (event.headers.Authorization == null) {
       if (continuous) {
         const newEvent = Object.assign({}, event, {
@@ -32,6 +34,8 @@ export function authMiddleware({
     }
 
     let newEvent: MiddlewareDTO.certifiedEvent = event;
+
+    // distinguish authorized user
     try {
       verify(event.headers.Authorization, process.env.JWT_SECRET ?? "secure");
       newEvent = Object.assign({}, event, {
@@ -44,12 +48,13 @@ export function authMiddleware({
     }
 
     if (!newEvent.state.isAdmin && !continuous) {
-      return createRes({
+      // return 401 HTTP error
+      return createErrorRes({
         status: 401,
-        headers: {},
-        body: { success: false, message: "인증되지 않은 유저입니다." },
+        message: "인증되지 않은 유저입니다.",
       });
     }
+
     return await next(newEvent);
   };
 }
