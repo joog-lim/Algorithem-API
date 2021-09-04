@@ -70,7 +70,7 @@ export interface DiscordEmbed {
   video?: DiscordEmbedVideo;
   provider?: DiscordEmbedProvider;
   author?: DiscordEmbedAuthor;
-  fields?: DiscordEmbedFields;
+  fields?: DiscordEmbedFields[];
 }
 interface DiscordEmbedLinkedComponent {
   url?: string;

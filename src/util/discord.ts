@@ -21,11 +21,13 @@ const generateWebhookMessage: Function = ({
         type: DiscordDTO.DiscordEmbedType.rich,
         title: coment,
         description: description,
-        fields: {
-          name: form.title,
-          value: form.content,
-          inline: false,
-        },
+        fields: [
+          {
+            name: form.title,
+            value: form.content,
+            inline: false,
+          },
+        ],
         footer: footerData,
         color: color,
       },
