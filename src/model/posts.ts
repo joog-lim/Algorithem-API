@@ -161,7 +161,11 @@ export class Post {
         };
       }
       var cursorCondition: Object = {};
-      if (cursor && options.admin) {
+      if (
+        cursor &&
+        options.admin &&
+        options.status === AlgorithemDTO.PostStatus.Pending
+      ) {
         cursorCondition = {
           _id: {
             // if status is pending, desc cursor order
