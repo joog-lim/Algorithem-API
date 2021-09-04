@@ -48,9 +48,9 @@ export const postAlgorithem: Function = async ({
 }: AlgorithemDTO.PostRequestForm): Promise<{ id: Schema.Types.ObjectId }> => {
   // post new algorithem
   const newAlgorithem = await new Post({
-    title: title,
+    title: replaceLtGtQuot(title),
     content: replaceLtGtQuot(content),
-    tag: tag,
+    tag: replaceLtGtQuot(tag),
     number: await getPostsNumber(AlgorithemDTO.PostStatus.Pending),
     createdAt: new Date(),
   }).save();
