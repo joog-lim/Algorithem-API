@@ -172,7 +172,7 @@ export const setAlogorithemStatus: Function = async (
           algorithem,
           reason,
         });
-        return createRes({ status: 201, body });
+        return createRes({ status: 200, body });
       } catch (error) {
         // check body is json
         if (error instanceof SyntaxError) {
