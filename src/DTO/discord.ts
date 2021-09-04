@@ -197,4 +197,5 @@ export interface GenerateMessage {
   form: PostRequestForm;
   coment: string;
   color: number;
+  description: string;
 }
