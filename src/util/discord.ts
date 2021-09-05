@@ -21,11 +21,13 @@ const generateWebhookMessage: Function = ({
         type: DiscordDTO.DiscordEmbedType.rich,
         title: coment,
         description: description,
-        fields: {
-          name: form.title,
-          value: form.content,
-          inline: false,
-        },
+        fields: [
+          {
+            name: form.title,
+            value: form.content,
+            inline: false,
+          },
+        ],
         footer: footerData,
         color: color,
       },
@@ -65,7 +67,7 @@ export const sendChangeStatusMessage: Function = async (
   const changeReason = reason ? `\n변경 사유 : ${reason}` : "";
   const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
     form: data,
-    title: "알고리즘 업데이트!",
+    coment: "알고리즘 업데이트!",
     description: `해당 알고리즘의 상태가 업데이트됐습니다.\n${beforeStatus} -> ${afterStatus}${changeReason}`,
     color: 15844367,
   });
@@ -78,7 +80,7 @@ export const algorithemDeleteEvenetMessage: Function = async (
   const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
     form: {
       title: post.title,
-      description: post.content,
+      content: post.content,
       tag: post.tag,
     },
     coment: "알고리즘이 삭제됨",
