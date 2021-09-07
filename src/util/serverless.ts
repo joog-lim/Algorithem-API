@@ -6,6 +6,7 @@ const ALLOWED_ORIGINS: string[] = [
   "http://localhost",
   "https://localhost",
   "https://joog-lim.info",
+  "https://www.joog-lim.info",
 ];
 
 function isIncludeOrigins(origin: string): boolean {
