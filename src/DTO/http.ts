@@ -9,7 +9,6 @@ export interface CreateResInput extends BaseHTTPData {
 }
 
 export interface ReturnResHTTPData extends CreateResInput {
-  statusCode: number;
   headers: Object;
   body: string;
 }
