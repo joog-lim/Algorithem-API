@@ -9,7 +9,7 @@ import { createRes, createErrorRes } from "../../util/serverless";
 
 // send verify question
 export const getVerifyQuestion: Function = async (
-  _: any,
+  event: any,
   __: any,
   ___: Function
 ): Promise<ReturnResHTTPData> => {
@@ -30,19 +30,25 @@ export const getVerifyQuestion: Function = async (
     .skip(random)
     .exec();
 
+  // get origin
+  const origin: string = event.headers.origin;
+
   // return notfound error
   if (result == null)
     return createErrorRes({
       status: 404,
-      message: "not found",
+      message: "Not Found",
+      origin,
     });
 
   // get return values
   const id: string = result.getId();
   const { question } = result;
 
-  return createRes({
-    status: 200,
-    body: { id, question },
-  });
+  return createRes(
+    {
+      body: { id, question },
+    },
+    origin
+  );
 };

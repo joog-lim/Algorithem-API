@@ -1,4 +1,5 @@
-# bamboo-server
+# Bamboo Server
+> 그.. 스타 좀 많이 눌러주시면 좋을지도
 
 GSM 대나무숲 서버
 
@@ -32,4 +33,4 @@ $ yarn local
 ```
 
 ## API명세서
-### [v1 API](https://kindhearted-trillium-8f3.notion.site/API-v1-9ee6f33406b14ec1a2a42949adf08fec)
+### [v2 API](https://kindhearted-trillium-8f3.notion.site/API-v2-e4484e626f7f4e7496c5f281de9f6055)

@@ -12,7 +12,7 @@ import { connectOptions } from "../../util/mongodb";
 import { createRes, createErrorRes } from "../../util/serverless";
 
 export const getAlgorithemCountAtAll: Function = async (
-  _: APIGatewayEvent,
+  event: APIGatewayEvent,
   __: any,
   ___: Function
 ): Promise<ReturnResHTTPData> => {
@@ -22,10 +22,13 @@ export const getAlgorithemCountAtAll: Function = async (
     .catch((err: Error): void =>
       console.log("Failed to connect MongoDB: ", err)
     );
+  //get origin
+  const origin: string = event.headers.origin ?? "";
+
   // get Number of algorithms by type
   const body: AlgorithemDTO.StatusCountList =
     await AlgorithemService.getKindOfAlgorithemCount();
-  return createRes({ status: 200, body });
+  return createRes({ body }, origin);
 };
 
 export const getAlgorithemList: Function = async (
@@ -47,6 +50,9 @@ export const getAlgorithemList: Function = async (
       // get parameter
       const { count, cursor, status } = event.queryStringParameters;
 
+      //get origin
+      const origin: string = event.headers.origin ?? "";
+      console.log(origin);
       //get algorithem list for return body value
       const body = await AlgorithemService.getAlgorithemList(
         {
@@ -56,7 +62,7 @@ export const getAlgorithemList: Function = async (
         },
         event.state.isAdmin
       );
-      return createRes({ status: 200, body });
+      return createRes({ body }, origin);
     }
   );
 };
@@ -111,12 +117,13 @@ export const wirteAlogorithem: Function = async (
 
   // get json type body values
   const { title, content, tag, verifier } = JSON.parse(event.body);
-
+  // get origin
+  const origin: string = event.headers.origi ?? "";
   // value check
   if (!title || !content || !tag) {
     return createErrorRes({
-      status: 400,
       message: "필숫값이 제대로 전달되지 않았습니다.",
+      origin,
     });
   }
 
@@ -129,6 +136,7 @@ export const wirteAlogorithem: Function = async (
     return createErrorRes({
       status: 401,
       message: "인증을 실패하였습니다.",
+      origin,
     });
   }
 
@@ -138,7 +146,7 @@ export const wirteAlogorithem: Function = async (
     content: content,
     tag: tag,
   });
-  return createRes({ status: 200, body });
+  return createRes({ status: 200, body }, origin);
 };
 
 // renew algorithem's status
@@ -158,14 +166,17 @@ export const setAlogorithemStatus: Function = async (
           console.log("Failed to connect MongoDB: ", err)
         );
       try {
+        //get parameter at body
         const { status, reason } = JSON.parse(event.body);
-
+        //get origin
+        const origin: string = event.headers.origin ?? "";
         //check status value
         if (!status) {
           return createErrorRes({
             status: 400,
             message:
               "status값이 선언되지않았습니다.\n다시 값을 확인해주시길 바랍니다.",
+            origin,
           });
         }
 
@@ -175,6 +186,7 @@ export const setAlogorithemStatus: Function = async (
             status: 400,
             message:
               "status값이 부적절합니다.\nstatus값에 오타가 없는지 확인해주시길 바랍니다.",
+            origin,
           });
         }
 
@@ -187,6 +199,7 @@ export const setAlogorithemStatus: Function = async (
             status: 404,
             message:
               "대기 상태나 삭제 상태로 교체할 수 없습니다.\n다른 API를 확인해주세요.",
+            origin,
           });
         }
 
@@ -201,19 +214,21 @@ export const setAlogorithemStatus: Function = async (
           return createErrorRes({
             status: 404,
             message: "알고리즘을 찾을 수 없습니다.",
+            origin,
           });
         const body = await AlgorithemService.algorithemStatusManage({
           status,
           algorithem,
           reason,
         });
-        return createRes({ status: 200, body });
+        return createRes({ body }, origin);
       } catch (error) {
         // check body is json
         if (error instanceof SyntaxError) {
           return createErrorRes({
             status: 400,
             message: "JSON 형식으로 값을 넘겨주셔야합니다.",
+            origin,
           });
         }
         throw error;
@@ -240,7 +255,10 @@ export const modifyAlogirithemContent: Function = async (
       // get algorithem's id and modify values with path parameters and req body
       const algorithemId: string = event.pathParameters.id;
       const data: AlgorithemDTO.OptionalBasePostForm = JSON.parse(event.body);
-      let body = {}; // declare response body
+      // get origin
+      const origin: string = event.headers.origin ?? "";
+      //declare response body
+      let body = {};
       try {
         // modify algorithem
         body = await AlgorithemService.patchAlgorithem(algorithemId, data);
@@ -249,9 +267,10 @@ export const modifyAlogirithemContent: Function = async (
         return createErrorRes({
           status: 404,
           message: "해당 게시물을 찾을 수 없습니다.",
+          origin,
         });
       }
-      return createRes({ status: 200, body });
+      return createRes({ body }, origin);
     }
   );
 };
@@ -272,9 +291,12 @@ export const reportAlogorithem: Function = async (
   const data: { reason: string } = JSON.parse(event.body);
   const id = event.pathParameters.id;
 
+  //get origin
+  const origin: string = event.headers.origin ?? "";
+
   // set status with deleted
   const body = await AlgorithemService.setDeleteStatus(id, data.reason);
-  return createRes({ status: 200, body });
+  return createRes({ body }, origin);
 };
 
 export const deleteAlgorithem: Function = async (
@@ -297,12 +319,15 @@ export const deleteAlgorithem: Function = async (
       const algorithemId: string = event.pathParameters.id;
       const data: { reason: string } = JSON.parse(event.body);
 
+      //get origin
+      const origin: string = event.headers.origin ?? "";
+
       // delete algorithem and get this algorithem information
       const body = await AlgorithemService.deleteAlgorithem(
         algorithemId,
         data.reason ?? "규칙에 위반된 알고리즘이기에 삭제되었습니다."
       );
-      return createRes({ status: 200, body });
+      return createRes({ body }, origin);
     }
   );
 };

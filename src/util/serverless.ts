@@ -1,13 +1,27 @@
 import { CreateResInput, ReturnResHTTPData } from "../DTO/http";
 
-export const createRes = (data: CreateResInput): ReturnResHTTPData => {
+const ALLOWED_ORIGINS: string[] = [
+  "http://localhost:3000",
+  "https://localhost:3000",
+  "http://localhost",
+  "https://localhost",
+  "https://joog-lim.info",
+  "https://www.joog-lim.info",
+];
+
+export const createRes = (
+  data: CreateResInput,
+  origin: string
+): ReturnResHTTPData => {
   const { status, headers, body } = data;
   return {
-    statusCode: status ?? 200,
+    status: status ?? 200,
     headers: Object.assign(
       {},
       {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(origin)
+          ? origin
+          : "",
         "Access-Control-Allow-Credentials": true,
       },
       headers ?? {}
@@ -19,14 +33,18 @@ export const createRes = (data: CreateResInput): ReturnResHTTPData => {
 export const createErrorRes = ({
   status,
   message,
+  origin,
 }: {
   status?: number;
   message?: string;
+  origin: string;
 }): ReturnResHTTPData => {
   return {
-    statusCode: status ?? 400,
+    status: status ?? 400,
     headers: {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(origin)
+        ? origin
+        : "",
       "Access-Control-Allow-Credentials": true,
     },
     body: JSON.stringify({

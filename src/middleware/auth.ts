@@ -2,7 +2,7 @@ import { APIGatewayEvent } from "aws-lambda";
 import { verify } from "jsonwebtoken";
 import { MiddlewareDTO } from "../DTO";
 import { ReturnResHTTPData } from "../DTO/http";
-import { createErrorRes, createRes } from "../util/serverless";
+import { createErrorRes } from "../util/serverless";
 
 // add state.isAdmin for authorized user
 export function authMiddleware({
@@ -25,10 +25,10 @@ export function authMiddleware({
         });
         return await next(newEvent);
       } else {
-        return createRes({
+        return createErrorRes({
           status: 401,
-          headers: {},
-          body: { success: false, message: "인증되지 않은 유저입니다.\n" },
+          message: "인증되지 않은 유저입니다.\n",
+          origin,
         });
       }
     }
@@ -52,6 +52,7 @@ export function authMiddleware({
       return createErrorRes({
         status: 401,
         message: "인증되지 않은 유저입니다.",
+        origin,
       });
     }
 
