@@ -52,7 +52,7 @@ export const getAlgorithemList: Function = async (
 
       //get origin
       const origin: string = event.headers.origin ?? "";
-      console.log(origin);
+
       //get algorithem list for return body value
       const body = await AlgorithemService.getAlgorithemList(
         {
@@ -82,12 +82,15 @@ export const getAlgorithemListAtPages: Function = async (
         .catch((err: Error): void =>
           console.log("Failed to connect MongoDB: ", err)
         );
+      //get origin
+      const origin: string = event.headers.origin ?? "";
 
       // get parameter
       const { page, status } = event.queryStringParameters;
       if (Number(page) <= 0)
         return createErrorRes({
           message: "page값은 1부터 시작합니다.",
+          origin,
         });
       //get algorithem list for return body value
       const body = await AlgorithemService.getAlgorithemListAtPages(
@@ -97,7 +100,7 @@ export const getAlgorithemListAtPages: Function = async (
         },
         event.state.isAdmin
       );
-      return createRes({ status: 200, body });
+      return createRes({ body }, origin);
     }
   );
 };
