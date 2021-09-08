@@ -46,6 +46,13 @@ functions:
           path: post/AlgorithemList
           method: get
           cors: true
+  getAlgorithemPage:
+    handler: src/handler.getAlgorithemListAtPages
+    events:
+      - http:
+          path: post/AlgorithemPage
+          method: get
+          cors: true
   createAlgorithem:
     handler: src/handler.wirteAlogorithem
     events:

@@ -56,13 +56,48 @@ export const getAlgorithemList: Function = async (
       //get algorithem list for return body value
       const body = await AlgorithemService.getAlgorithemList(
         {
-          count: Number(count ?? "10"),
+          count: Number(count || "20"),
           cursor: cursor ?? "0",
           status: status ?? AlgorithemDTO.PostStatus.Accepted,
         },
         event.state.isAdmin
       );
       return createRes({ body }, origin);
+    }
+  );
+};
+
+export const getAlgorithemListAtPages: Function = async (
+  event: APIGatewayEvent,
+  __: any,
+  ___: Function
+): Promise<ReturnResHTTPData> => {
+  // use middleware for authorized user
+  return await authMiddleware({ continuous: true })(
+    event,
+    async (event: MiddlewareDTO.certifiedEvent) => {
+      mongoose
+        .connect(process.env.MONGO_URL ?? "", connectOptions)
+        .then((): void => console.log("MongoDB connected"))
+        .catch((err: Error): void =>
+          console.log("Failed to connect MongoDB: ", err)
+        );
+
+      // get parameter
+      const { page, status } = event.queryStringParameters;
+      if (Number(page) <= 0)
+        return createErrorRes({
+          message: "page값은 1부터 시작합니다.",
+        });
+      //get algorithem list for return body value
+      const body = await AlgorithemService.getAlgorithemListAtPages(
+        {
+          page: Number(page || 1),
+          status: status ?? AlgorithemDTO.PostStatus.Accepted,
+        },
+        event.state.isAdmin
+      );
+      return createRes({ status: 200, body });
     }
   );
 };

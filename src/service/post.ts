@@ -41,6 +41,28 @@ export const getAlgorithemList: Function = async (
   };
 };
 
+export const getAlgorithemListAtPages: Function = async (
+  data: AlgorithemDTO.GetPagesParam,
+  isAdmin: boolean
+): Promise<AlgorithemDTO.AlgorithemPage> => {
+  // get algorithem list
+  const posts = await Post.getListAtPages(data.page, {
+    admin: isAdmin,
+    status: isAdmin ? data.status : AlgorithemDTO.PostStatus.Accepted,
+  });
+
+  // separate algorithem list
+  return {
+    posts: posts.map(
+      data.status !== AlgorithemDTO.PostStatus.Deleted
+        ? (value): AlgorithemDTO.PublicPostFields => value.getPublicFields()
+        : (value): AlgorithemDTO.DeletedPostFields => value.getDeletedFields()
+    ),
+    totalPage:
+      ~~((await Post.countDocuments({ status: data.status })) / 20) + 1,
+  };
+};
+
 export const postAlgorithem: Function = async ({
   title,
   content,

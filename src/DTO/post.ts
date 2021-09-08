@@ -4,6 +4,11 @@ export interface GetListParam {
   status: PostStatusType;
 }
 
+export interface GetPagesParam {
+  page: number;
+  status: PostStatusType;
+}
+
 export const PostStatus = {
   Pending: "PENDING",
   Accepted: "ACCEPTED",
@@ -60,10 +65,15 @@ export interface StatusCountList {
   count: number;
 }
 
-export interface AlgorithemList {
+export interface AlgorithemObjects {
   posts: PublicPostFields[];
+}
+export interface AlgorithemList extends AlgorithemObjects {
   cursor: string;
   hasNext: boolean;
+}
+export interface AlgorithemPage extends AlgorithemObjects {
+  totalPage: number;
 }
 
 export interface ChangeStatusReturnValue {
