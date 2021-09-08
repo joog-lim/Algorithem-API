@@ -9,9 +9,6 @@ const ALLOWED_ORIGINS: string[] = [
   "https://www.joog-lim.info",
 ];
 
-function isIncludeOrigins(origin: string): boolean {
-  return ALLOWED_ORIGINS.includes(origin);
-}
 export const createRes = (
   data: CreateResInput,
   origin: string
@@ -22,7 +19,9 @@ export const createRes = (
     headers: Object.assign(
       {},
       {
-        "Access-Control-Allow-Origin": isIncludeOrigins(origin) ? origin : "",
+        "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(origin)
+          ? origin
+          : "",
         "Access-Control-Allow-Credentials": true,
       },
       headers ?? {}
@@ -43,7 +42,9 @@ export const createErrorRes = ({
   return {
     status: status ?? 400,
     headers: {
-      "Access-Control-Allow-Origin": isIncludeOrigins(origin) ? origin : "",
+      "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(origin)
+        ? origin
+        : "",
       "Access-Control-Allow-Credentials": true,
     },
     body: JSON.stringify({

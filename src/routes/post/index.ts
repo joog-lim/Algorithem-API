@@ -23,7 +23,8 @@ export const getAlgorithemCountAtAll: Function = async (
       console.log("Failed to connect MongoDB: ", err)
     );
   //get origin
-  const origin: string = event.headers.origin;
+  const origin: string = event.headers.origin ?? "";
+
   // get Number of algorithms by type
   const body: AlgorithemDTO.StatusCountList =
     await AlgorithemService.getKindOfAlgorithemCount();
@@ -50,7 +51,7 @@ export const getAlgorithemList: Function = async (
       const { count, cursor, status } = event.queryStringParameters;
 
       //get origin
-      const origin: string = event.headers.origin;
+      const origin: string = event.headers.origin ?? "";
       console.log(origin);
       //get algorithem list for return body value
       const body = await AlgorithemService.getAlgorithemList(
@@ -82,7 +83,7 @@ export const wirteAlogorithem: Function = async (
   // get json type body values
   const { title, content, tag, verifier } = JSON.parse(event.body);
   // get origin
-  const origin: string = event.headers.origin;
+  const origin: string = event.headers.origi ?? "";
   // value check
   if (!title || !content || !tag) {
     return createErrorRes({
@@ -133,7 +134,7 @@ export const setAlogorithemStatus: Function = async (
         //get parameter at body
         const { status, reason } = JSON.parse(event.body);
         //get origin
-        const origin: string = event.headers.origin;
+        const origin: string = event.headers.origin ?? "";
         //check status value
         if (!status) {
           return createErrorRes({
@@ -220,7 +221,7 @@ export const modifyAlogirithemContent: Function = async (
       const algorithemId: string = event.pathParameters.id;
       const data: AlgorithemDTO.OptionalBasePostForm = JSON.parse(event.body);
       // get origin
-      const origin: string = event.headers.origin;
+      const origin: string = event.headers.origin ?? "";
       //declare response body
       let body = {};
       try {
@@ -256,7 +257,7 @@ export const reportAlogorithem: Function = async (
   const id = event.pathParameters.id;
 
   //get origin
-  const origin: string = event.headers.origin;
+  const origin: string = event.headers.origin ?? "";
 
   // set status with deleted
   const body = await AlgorithemService.setDeleteStatus(id, data.reason);
@@ -284,7 +285,7 @@ export const deleteAlgorithem: Function = async (
       const data: { reason: string } = JSON.parse(event.body);
 
       //get origin
-      const origin: string = event.headers.origin;
+      const origin: string = event.headers.origin ?? "";
 
       // delete algorithem and get this algorithem information
       const body = await AlgorithemService.deleteAlgorithem(
