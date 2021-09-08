@@ -139,6 +139,39 @@ export class Post {
       deleteReqNumber: this.deleteReqNumber ?? 0,
     };
   }
+
+  public static async getListAtPages(
+    this: ModelType<Post> & typeof Post,
+    page: number = 1,
+    options: AlgorithemDTO.FindPostsOptions
+  ): Promise<Array<DocumentType<Post>>> {
+    const isAdminAndNotPending =
+      options.admin && options.status !== AlgorithemDTO.PostStatus.Pending;
+    function getCondition() {
+      var statusCondition: Object = {};
+      if (options.status !== AlgorithemDTO.PostStatus.Accepted) {
+        statusCondition = { status: options.status };
+      } else {
+        statusCondition = {
+          $or: [
+            { status: AlgorithemDTO.PostStatus.Accepted },
+            { status: AlgorithemDTO.PostStatus.Deleted },
+          ], // if status is Accepted, search Accepted and deleted
+        };
+      }
+      return function () {
+        return Object.assign({}, statusCondition);
+      };
+    }
+    return await this.find(getCondition()())
+      .sort(
+        // if user isn't admin, desc number
+        options.admin ? { _id: isAdminAndNotPending ? -1 : 1 } : { number: -1 }
+      ) // if user is admin and status is Pending, asc objectId
+      .limit(20) // limited count is arg count
+      .skip(20 * (page - 1))
+      .exec();
+  }
   public static async getList(
     this: ModelType<Post> & typeof Post,
     count: number = 10,

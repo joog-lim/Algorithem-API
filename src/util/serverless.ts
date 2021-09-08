@@ -20,8 +20,8 @@ export const createErrorRes = ({
   status,
   message,
 }: {
-  status: number;
-  message: string;
+  status?: number;
+  message?: string;
 }): ReturnResHTTPData => {
   return {
     statusCode: status ?? 400,
