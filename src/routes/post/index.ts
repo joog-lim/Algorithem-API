@@ -50,7 +50,7 @@ export const getAlgorithemList: Function = async (
       //get algorithem list for return body value
       const body = await AlgorithemService.getAlgorithemList(
         {
-          count: Number(count ?? "10"),
+          count: Number(count || "20"),
           cursor: cursor ?? "0",
           status: status ?? AlgorithemDTO.PostStatus.Accepted,
         },
