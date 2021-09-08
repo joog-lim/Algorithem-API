@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@typegoose/typegoose": "^8.2.0",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "js-base64": "^3.6.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "5.13.8",
