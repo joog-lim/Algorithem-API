@@ -17,7 +17,6 @@ $ yarn
 - write .env (refer .env.example)
 
 ```env
-PORT=
 MONGO_URL=
 DISCORD_WEBHOOK=
 DISCORD_TEST_WEBHOOK=
