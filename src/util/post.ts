@@ -21,11 +21,17 @@ export const getCursor: Function = async (
 export const getPostsNumber: Function = async (
   status: AlgorithemDTO.PostStatusType
 ): Promise<number> => {
+  const condition =
+    status !== AlgorithemDTO.PostStatus.Accepted
+      ? { status: status }
+      : {
+          $or: [
+            { status: AlgorithemDTO.PostStatus.Accepted },
+            { status: AlgorithemDTO.PostStatus.Deleted },
+          ],
+        };
   const lastPost = (
-    await PostModel.find({ status: status })
-      .sort({ number: -1 })
-      .limit(1)
-      .exec()
+    await PostModel.find(condition).sort({ number: -1 }).limit(1).exec()
   )[0];
   return (lastPost?.number ?? 0) + 1;
 };
