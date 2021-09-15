@@ -130,9 +130,7 @@ export const deleteAlgorithem: Function = async (
   reason: string
 ): Promise<AlgorithemDTO.PublicPostFields> => {
   // find by and remove post with id
-  const algorithem = await Post.findOneAndDelete({
-    _id: new Schema.Types.ObjectId(id),
-  });
+  const algorithem = await Post.findByIdAndDelete(id);
 
   // send message for discord log
   await algorithemDeleteEvenetMessage(algorithem, reason);
