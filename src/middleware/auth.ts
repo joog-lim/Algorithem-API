@@ -28,7 +28,6 @@ export function authMiddleware({
         return createErrorRes({
           status: 401,
           message: "인증되지 않은 유저입니다.\n",
-          origin,
         });
       }
     }
@@ -52,7 +51,6 @@ export function authMiddleware({
       return createErrorRes({
         status: 401,
         message: "인증되지 않은 유저입니다.",
-        origin,
       });
     }
 

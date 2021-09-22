@@ -13,14 +13,10 @@ exports.authAdmin = async (
 ): Promise<ReturnResHTTPData> => {
   const body: AuthAdmin = JSON.parse(event.body);
 
-  //get origin
-  const origin: string = event.headers.origin;
-
   // check password
   if (body.password !== process.env.ADMIN_PASSWORD) {
     return createErrorRes({
       message: "비밀번호가 잘못되었습니다.",
-      origin,
     });
   }
 
@@ -28,10 +24,7 @@ exports.authAdmin = async (
   const token = sign({ name: "admin" }, process.env.JWT_SECRET ?? "secure", {
     expiresIn: "3h",
   });
-  return createRes(
-    {
-      body: { token, success: true },
-    },
-    origin
-  );
+  return createRes({
+    body: { token, success: true },
+  });
 };

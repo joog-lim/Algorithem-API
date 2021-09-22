@@ -5,10 +5,11 @@ export interface BaseHTTPData {
 
 export interface CreateResInput extends BaseHTTPData {
   body?: Object;
-  status?: number;
+  statusCode?: number;
 }
 
 export interface ReturnResHTTPData extends CreateResInput {
   headers: Object;
   body: string;
+  isBase64Encoded: boolean;
 }
