@@ -2,7 +2,7 @@ import { APIGatewayEvent } from "aws-lambda";
 import { verify } from "jsonwebtoken";
 import { MiddlewareDTO } from "../DTO";
 import { ReturnResHTTPData } from "../DTO/http";
-import { createErrorRes } from "../util/serverless";
+import { ALLOWED_ORIGINS, createErrorRes } from "../util/serverless";
 
 // add state.isAdmin for authorized user
 export function authMiddleware({
@@ -18,6 +18,13 @@ export function authMiddleware({
     next: (event: MiddlewareDTO.certifiedEvent) => Promise<ReturnResHTTPData>
   ): Promise<ReturnResHTTPData> => {
     // don't have authorization header
+    const origin = event.headers.origin;
+    if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+      return createErrorRes({
+        status: 401,
+        message: "인증되지않은 오리진입니다.",
+      });
+    }
     if (event.headers.Authorization == null) {
       if (continuous) {
         const newEvent = Object.assign({}, event, {

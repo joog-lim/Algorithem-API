@@ -29,7 +29,6 @@ export const getVerifyQuestion: Function = async (
     .findOne()
     .skip(random)
     .exec();
-
   // return notfound error
   if (result == null)
     return createErrorRes({

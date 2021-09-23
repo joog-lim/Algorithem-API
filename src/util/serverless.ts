@@ -1,5 +1,15 @@
 import { CreateResInput, ReturnResHTTPData } from "../DTO/http";
 
+export const ALLOWED_ORIGINS: string[] = [
+  "http://localhost:3000",
+  "https://localhost:3000",
+  "http://localhost",
+  "https://localhost",
+  "https://joog-lim.info",
+  "https://www.joog-lim.info",
+  "https://jooglim.netlify.app",
+];
+
 export const createRes = (data: CreateResInput): ReturnResHTTPData => {
   const { statusCode, headers, body } = data;
   return {
