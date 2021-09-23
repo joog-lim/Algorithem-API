@@ -4,7 +4,10 @@ import PostModel, { Post as PostClass } from "../model/posts";
 import { AlgorithemDTO } from "../DTO";
 
 export const replaceLtGtQuot: Function = (text: string): string => {
-  return text.replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;");
+  return text
+    .replace(/</gi, "&lt;")
+    .replace(/>/gi, "&gt;")
+    .replace(/"/gi, "&quot;");
 };
 
 export const getCursor: Function = async (

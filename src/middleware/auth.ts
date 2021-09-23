@@ -19,7 +19,7 @@ export function authMiddleware({
   ): Promise<ReturnResHTTPData> => {
     // don't have authorization header
     const origin = event.headers.origin;
-    if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+    if (!ALLOWED_ORIGINS.includes(origin) && origin) {
       return createErrorRes({
         status: 401,
         message: "인증되지않은 오리진입니다.",
