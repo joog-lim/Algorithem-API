@@ -78,11 +78,18 @@ export class Post {
     this: DocumentType<Post>,
     arg: AlgorithemDTO.SetStatusArg
   ): Promise<DocumentType<Post>> {
-    this.status = arg.status;
+    if (
+      this.status == AlgorithemDTO.PostStatus.Deleted &&
+      arg.status == AlgorithemDTO.PostStatus.Accepted
+    ) {
+      this.status = arg.status;
+      this.deleteReqNumber = 0;
+    } else {
+      this.status = arg.status;
 
-    // Get state-specific values
-    this.number = await getPostsNumber(arg.status);
-
+      // Get state-specific values
+      this.number = await getPostsNumber(arg.status);
+    }
     this.reason = arg.reason ?? "";
     await this.save();
     return this;

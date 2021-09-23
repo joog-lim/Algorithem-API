@@ -64,14 +64,14 @@ export const sendChangeStatusMessage: Function = async (
   },
   reason: string
 ): Promise<void> => {
-  const changeReason = reason ? `\n변경 사유 : ${reason}` : "";
+  const changeReason = reason ? `\n**변경 사유** : ${reason}` : "";
   const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
     form: data,
     coment: "알고리즘 업데이트!",
     description: `해당 알고리즘의 상태가 업데이트됐습니다.\n${beforeStatus} -> ${afterStatus}${changeReason}`,
     color: 15844367,
   });
-  await sendMessage(process.env.DISCORD_MANAGEMENT_WEBHOOK, message);
+  await sendMessage(process.env.DISCORD_WEBHOOK, message);
 };
 
 export const algorithemDeleteEvenetMessage: Function = async (

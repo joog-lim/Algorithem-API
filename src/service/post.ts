@@ -98,16 +98,17 @@ export const algorithemStatusManage: Function = async ({
   const { title, content, tag } = result;
 
   // send message for discord log
-  await sendChangeStatusMessage(
-    {
-      title: title,
-      content: content,
-      tag: tag,
-    },
-    { beforeStatus: beforeStatus, afterStatus: status },
-    reason ?? undefined
-  );
-
+  if (status !== AlgorithemDTO.PostStatus.Rejected) {
+    await sendChangeStatusMessage(
+      {
+        title: title,
+        content: content,
+        tag: tag,
+      },
+      { beforeStatus: beforeStatus, afterStatus: status },
+      reason ?? undefined
+    );
+  }
   return {
     title: title,
     content: content,

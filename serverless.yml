@@ -112,7 +112,7 @@ custom:
       env:
         - MONGO_URL
         - DISCORD_WEBHOOK
-        - DISCORD_TEST_WEBHOOK
         - DISCORD_MANAGEMENT_WEBHOOK
+        - DISCORD_ABOUT_DELETE_WEBHOOK
         - ADMIN_PASSWORD
         - JWT_SECRET
