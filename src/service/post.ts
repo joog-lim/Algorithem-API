@@ -4,9 +4,11 @@ import { Schema } from "mongoose";
 import { AlgorithemDTO } from "../DTO";
 import Post, { Post as PostModel } from "../model/posts";
 import {
-  sendChangeStatusMessage,
   sendNewAlgorithemMessage,
   algorithemDeleteEvenetMessage,
+  sendReportMessage,
+  sendSetRejectedMessage,
+  sendACCEPTEDAlgorithemMessage,
 } from "../util/discord";
 import { getCursor, getPostsNumber, replaceLtGtQuot } from "../util/post";
 
@@ -96,18 +98,20 @@ export const algorithemStatusManage: Function = async ({
   // change algorithem status
   const result = await algorithem.setStatus({ status: status });
   const { title, content, tag } = result;
-
+  const messageBody = { title, content, tag };
   // send message for discord log
-  if (status !== AlgorithemDTO.PostStatus.Rejected) {
-    await sendChangeStatusMessage(
-      {
-        title: title,
-        content: content,
-        tag: tag,
-      },
-      { beforeStatus: beforeStatus, afterStatus: status },
-      reason ?? undefined
-    );
+  switch (status) {
+    case AlgorithemDTO.PostStatus.Rejected:
+      await sendSetRejectedMessage(messageBody, reason ?? undefined);
+      break;
+    case AlgorithemDTO.PostStatus.Accepted:
+      await sendACCEPTEDAlgorithemMessage(messageBody, reason ?? undefined);
+      break;
+    case AlgorithemDTO.PostStatus.Deleted:
+      await sendReportMessage(messageBody, reason ?? undefined);
+      break;
+    default:
+      break;
   }
   return {
     title: title,
@@ -147,12 +151,8 @@ export const setDeleteStatus: Function = async (
   const { title, content, tag } = algorithem;
 
   // send message for discord log
-  await sendChangeStatusMessage(
+  await sendReportMessage(
     { title: title, content: content, tag: tag },
-    {
-      beforeStatus: AlgorithemDTO.PostStatus.Accepted,
-      afterStatus: AlgorithemDTO.PostStatus.Deleted,
-    },
     reason ?? undefined
   );
   return algorithem.getPublicFields();

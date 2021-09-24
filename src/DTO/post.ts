@@ -45,6 +45,7 @@ export interface PublicPostFields {
   tag: string;
   createdAt: number;
   status: string;
+  reason: string;
 }
 export interface DeletedPostFields extends PublicPostFields {
   deleteReqNumber: number;

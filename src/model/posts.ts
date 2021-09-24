@@ -130,6 +130,7 @@ export class Post {
 
       createdAt: this.createdAt.getTime(),
       status: this.status,
+      reason: this.reason ?? "",
     };
   }
   public getDeletedFields(
@@ -144,6 +145,7 @@ export class Post {
       createdAt: this.createdAt.getTime(),
       status: this.status,
       deleteReqNumber: this.deleteReqNumber ?? 0,
+      reason: this.reason ?? "",
     };
   }
 

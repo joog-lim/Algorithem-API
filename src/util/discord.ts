@@ -34,12 +34,6 @@ const generateWebhookMessage: Function = ({
     ],
   };
 };
-interface DiscordDeletedMessage {
-  coment: string;
-  reason: string;
-  url: string;
-  number: number;
-}
 
 export const sendNewAlgorithemMessage: Function = async (
   data: AlgorithemDTO.PostRequestForm
@@ -53,30 +47,52 @@ export const sendNewAlgorithemMessage: Function = async (
   await sendMessage(process.env.DISCORD_MANAGEMENT_WEBHOOK, message);
 };
 
-export const sendChangeStatusMessage: Function = async (
+export const sendSetRejectedMessage: Function = async (
   data: AlgorithemDTO.PostRequestForm,
-  {
-    beforeStatus,
-    afterStatus,
-  }: {
-    beforeStatus: AlgorithemDTO.PostStatusType;
-    afterStatus: AlgorithemDTO.PostStatusType;
-  },
   reason: string
 ): Promise<void> => {
-  const changeReason = reason ? `\n**변경 사유** : ${reason}` : "";
+  const changeReason = reason ? `\n**거절 사유** : ${reason}` : "";
   const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
     form: data,
-    coment: "알고리즘 업데이트!",
-    description: `해당 알고리즘의 상태가 업데이트됐습니다.\n${beforeStatus} -> ${afterStatus}${changeReason}`,
-    color: 15844367,
+    coment: "거절된 알고리즘",
+    description: `해당 알고리즘이 거절되었습니다.${changeReason}`,
+    color: 16711680,
   });
-  await sendMessage(process.env.DISCORD_WEBHOOK, message);
+  await sendMessage(process.env.DISCORD_RECJECTED_WEBHOOK, message);
+};
+
+export const sendReportMessage: Function = async (
+  data: AlgorithemDTO.PostRequestForm,
+  reason: string
+): Promise<void> => {
+  const changeReason = reason ? `\n**신고 사유** : ${reason}` : "";
+  const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
+    form: data,
+    coment: "알고리즘 신고",
+    description: `해당 알고리즘이 신고되었습니다.${changeReason}`,
+    color: 16711680,
+  });
+  await sendMessage(process.env.DISCORD_REPORT_WEBHOOK, message);
+};
+
+export const sendACCEPTEDAlgorithemMessage: Function = async (
+  data: AlgorithemDTO.PostRequestForm
+): Promise<void> => {
+  const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
+    form: data,
+    coment: "알고리즘 갱신!",
+    description: "새로운 알고리즘이 기다리고있습니다!",
+    color: 1752220,
+  });
+  await sendMessage(process.env.DISCORD_ACCEPTED_WEBHOOK, message);
 };
 
 export const algorithemDeleteEvenetMessage: Function = async (
   post: DocumentType<Post>
 ): Promise<void> => {
+  const deletedReason: string = post.reason
+    ? `\n**삭제 사유** : ${post.reason}`
+    : "";
   const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
     form: {
       title: post.title,
@@ -84,7 +100,7 @@ export const algorithemDeleteEvenetMessage: Function = async (
       tag: post.tag,
     },
     coment: "알고리즘이 삭제됨",
-    description: `${post.number}번째 알고리즘이 삭제되었습니다.\n**삭제 사유** : ${post.reason}`,
+    description: `${post.number}번째 알고리즘이 삭제되었습니다.${deletedReason}`,
     color: 16711680,
   });
   await sendMessage(process.env.DISCORD_ABOUT_DELETE_WEBHOOK, message);

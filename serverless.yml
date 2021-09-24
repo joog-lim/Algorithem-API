@@ -111,7 +111,9 @@ custom:
     required:
       env:
         - MONGO_URL
-        - DISCORD_WEBHOOK
+        - DISCORD_ACCEPTED_WEBHOOK
+        - DISCORD_RECJECTED_WEBHOOK
+        - DISCORD_REPORT_WEBHOOK
         - DISCORD_MANAGEMENT_WEBHOOK
         - DISCORD_ABOUT_DELETE_WEBHOOK
         - ADMIN_PASSWORD
