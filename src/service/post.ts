@@ -96,7 +96,7 @@ export const algorithemStatusManage: Function = async ({
   const beforeStatus = algorithem.status;
 
   // change algorithem status
-  const result = await algorithem.setStatus({ status: status });
+  const result = await algorithem.setStatus({ status, reason });
   const { title, content, tag } = result;
   const messageBody = { title, content, tag };
   // send message for discord log
