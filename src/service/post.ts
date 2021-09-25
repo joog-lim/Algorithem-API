@@ -105,6 +105,9 @@ export const algorithemStatusManage: Function = async ({
       await sendSetRejectedMessage(messageBody, reason ?? undefined);
       break;
     case AlgorithemDTO.PostStatus.Accepted:
+      if (beforeStatus == AlgorithemDTO.PostStatus.Deleted) {
+        break;
+      }
       await sendACCEPTEDAlgorithemMessage(messageBody, reason ?? undefined);
       break;
     case AlgorithemDTO.PostStatus.Deleted:
