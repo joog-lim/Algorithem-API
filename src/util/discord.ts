@@ -88,10 +88,11 @@ export const sendACCEPTEDAlgorithemMessage: Function = async (
 };
 
 export const algorithemDeleteEvenetMessage: Function = async (
-  post: DocumentType<Post>
+  post: DocumentType<Post>,
+  reason : string
 ): Promise<void> => {
-  const deletedReason: string = post.reason
-    ? `\n**삭제 사유** : ${post.reason}`
+  const deletedReason: string = reason
+    ? `\n**삭제 사유** : ${reason}`
     : "";
   const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
     form: {
