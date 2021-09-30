@@ -1,3 +1,3 @@
 import { APIGatewayEvent } from "aws-lambda";
 
-export type certifiedEvent = APIGatewayEvent & { state?: { isAdmin: boolean } };
+export type CertifiedEvent = APIGatewayEvent & { state?: { isAdmin: boolean } };

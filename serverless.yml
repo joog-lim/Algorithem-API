@@ -33,7 +33,7 @@ resources:
 
 functions:
   getKindOfAlgorithemCount:
-    handler: src/handler.getAlgorithemCountAtAll
+    handler: src/handler.getStatusList
     events:
       - http:
           path: post/count
@@ -54,21 +54,21 @@ functions:
           method: get
           cors: true
   createAlgorithem:
-    handler: src/handler.wirteAlogorithem
+    handler: src/handler.postAlgorithem
     events:
       - http:
           path: post/create
           method: post
           cors: true
   changeStatusAlgorithem:
-    handler: src/handler.setAlogorithemStatus
+    handler: src/handler.setAlgorithemStatus
     events:
       - http:
           path: post/{id}/setStatus
           method: post
           cors: true
   modifyAlgorithem:
-    handler: src/handler.modifyAlogirithemContent
+    handler: src/handler.modifyAlgorithem
     events:
       - http:
           path: post/{id}/modify
