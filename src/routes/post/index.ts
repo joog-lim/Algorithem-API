@@ -10,6 +10,7 @@ import verifieres from "../../model/verifieres";
 import { AlgorithemService } from "../../service";
 import { connectOptions } from "../../util/mongodb";
 import { createRes, createErrorRes } from "../../util/serverless";
+import { rules, bold15, bold18 } from "../../config/rule";
 
 class Algorithem {
   static async getAlgorithemCountAtAll(
@@ -296,6 +297,19 @@ class Algorithem {
       algorithemId,
       data.reason ?? "규칙에 위반된 알고리즘이기에 삭제되었습니다."
     );
+    return createRes({ body });
+  }
+
+  static async getAlgorithemRule(
+    _: APIGatewayEvent,
+    __: any,
+    ___: Function
+  ): Promise<ReturnResHTTPData> {
+    const body = {
+      content: rules,
+      bold15,
+      bold18,
+    };
     return createRes({ body });
   }
 }
