@@ -322,3 +322,4 @@ export const modifyAlgorithem = Algorithem.modifyAlogirithemContent;
 export const setAlgorithemStatus = Algorithem.setAlogorithemStatus;
 export const deleteAlgorithem = Algorithem.deleteAlgorithem;
 export const reportAlogorithem = Algorithem.reportAlogorithem;
+export const getAlgorithemRUles = Algorithem.getAlgorithemRule;

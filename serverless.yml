@@ -88,6 +88,13 @@ functions:
           path: post/{id}/delete
           method: delete
           cors: true
+  getAlgorithemRules:
+    handler: src/handler.getAlgorithemRUles
+    events:
+      - http:
+          path: post/rule
+          method: get
+          cors: true
   auth:
     handler: src/handler.authAdmin
     events:
