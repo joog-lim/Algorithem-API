@@ -53,7 +53,7 @@ export const sendSetRejectedMessage: Function = async (
 ): Promise<void> => {
   const changeReason = reason ? `\n**거절 사유** : ${reason}` : "";
   const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
-    form: data,
+    form: { title: data.title, content: " ", tag: data.tag },
     coment: "거절된 알고리즘",
     description: `해당 알고리즘이 거절되었습니다.${changeReason}`,
     color: 16711680,
@@ -89,11 +89,9 @@ export const sendACCEPTEDAlgorithemMessage: Function = async (
 
 export const algorithemDeleteEvenetMessage: Function = async (
   post: DocumentType<Post>,
-  reason : string
+  reason: string
 ): Promise<void> => {
-  const deletedReason: string = reason
-    ? `\n**삭제 사유** : ${reason}`
-    : "";
+  const deletedReason: string = reason ? `\n**삭제 사유** : ${reason}` : "";
   const message: DiscordDTO.SendDiscordWebhookMessage = generateWebhookMessage({
     form: {
       title: post.title,
