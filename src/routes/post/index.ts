@@ -93,9 +93,8 @@ class Algorithem {
 
   // Ability to publish algorithms for those who answered the question
   @AuthMiddleware.onlyOrigin
-  @AuthMiddleware.admin(false)
   static async wirteAlogorithem(
-    event: MiddlewareDTO.CertifiedEvent,
+    event: APIGatewayEvent,
     __: any,
     ___: Function
   ): Promise<ReturnResHTTPData> {
