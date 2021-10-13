@@ -8,7 +8,7 @@ provider:
   runtime: nodejs14.x
   lambdaHashingVersion: 20201221
   region: ap-northeast-2
-  stage: apiV2
+  stage: test
 
 resources:
   Resources:
@@ -89,10 +89,17 @@ functions:
           method: delete
           cors: true
   getAlgorithemRules:
-    handler: src/handler.getAlgorithemRUles
+    handler: src/handler.getAlgorithemRules
     events:
       - http:
           path: post/rule
+          method: get
+          cors: true
+  getAlgorithemRulesForWeb:
+    handler: src/handler.getAlgorithemRulesForWeb
+    events:
+      - http:
+          path: post/rule/web
           method: get
           cors: true
   auth:

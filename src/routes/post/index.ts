@@ -10,7 +10,7 @@ import verifieres from "../../model/verifieres";
 import { AlgorithemService } from "../../service";
 import { connectOptions } from "../../util/mongodb";
 import { createRes, createErrorRes } from "../../util/serverless";
-import { rules, bold15, bold18 } from "../../config/rule";
+import { rules, bold15, bold18, ruleForWeb } from "../../config/rule";
 
 class Algorithem {
   static async getAlgorithemCountAtAll(
@@ -311,6 +311,17 @@ class Algorithem {
     };
     return createRes({ body });
   }
+
+  static async getAlgorithemRuleForWeb(
+    _: APIGatewayEvent,
+    __: AuthMiddleware,
+    ___: Function
+  ): Promise<ReturnResHTTPData> {
+    const body = {
+      content: ruleForWeb,
+    };
+    return createRes({ body });
+  }
 }
 
 export const getStatusList = Algorithem.getAlgorithemCountAtAll;
@@ -321,4 +332,5 @@ export const modifyAlgorithem = Algorithem.modifyAlogirithemContent;
 export const setAlgorithemStatus = Algorithem.setAlogorithemStatus;
 export const deleteAlgorithem = Algorithem.deleteAlgorithem;
 export const reportAlogorithem = Algorithem.reportAlogorithem;
-export const getAlgorithemRUles = Algorithem.getAlgorithemRule;
+export const getAlgorithemRules = Algorithem.getAlgorithemRule;
+export const getAlgorithemRulesForWeb = Algorithem.getAlgorithemRuleForWeb;
