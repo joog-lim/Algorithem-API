@@ -78,14 +78,14 @@ export const rules = `
 해당 이슈에 관한 글들은 일정 시간이 지난 이후에 하나의 게시글로 묶여 업로드 된다.
 `;
 
-export const bold18: string[] = [
+export const bold15: string[] = [
   "제 1조 목적",
   "제 2조 게시글 게시에 관한 규칙",
   "제 3조 신고된 게시물에 관한 규칙",
   "제 4조 특정 이슈로 인한 과열에 관한 규칙",
 ];
 
-export const bold15: string[] = [
+export const bold13: string[] = [
   "- 제 1항",
   "- 제 2항",
   "- 제 3항",

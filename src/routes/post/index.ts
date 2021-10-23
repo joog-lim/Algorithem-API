@@ -10,7 +10,7 @@ import verifieres from "../../model/verifieres";
 import { AlgorithemService } from "../../service";
 import { connectOptions } from "../../util/mongodb";
 import { createRes, createErrorRes } from "../../util/serverless";
-import { rules, bold15, bold18, ruleForWeb } from "../../config/rule";
+import { rules, bold15, ruleForWeb, bold13 } from "../../config/rule";
 
 class Algorithem {
   static async getAlgorithemCountAtAll(
@@ -306,8 +306,8 @@ class Algorithem {
   ): Promise<ReturnResHTTPData> {
     const body = {
       content: rules,
+      bold13,
       bold15,
-      bold18,
     };
     return createRes({ body });
   }
