@@ -8,7 +8,7 @@ provider:
   runtime: nodejs14.x
   lambdaHashingVersion: 20201221
   region: ap-northeast-2
-  stage: apiV2
+  stage: test
 
 resources:
   Resources:
@@ -33,7 +33,7 @@ resources:
 
 functions:
   getKindOfAlgorithemCount:
-    handler: src/handler.getAlgorithemCountAtAll
+    handler: src/handler.getStatusList
     events:
       - http:
           path: post/count
@@ -54,21 +54,21 @@ functions:
           method: get
           cors: true
   createAlgorithem:
-    handler: src/handler.wirteAlogorithem
+    handler: src/handler.postAlgorithem
     events:
       - http:
           path: post/create
           method: post
           cors: true
   changeStatusAlgorithem:
-    handler: src/handler.setAlogorithemStatus
+    handler: src/handler.setAlgorithemStatus
     events:
       - http:
           path: post/{id}/setStatus
           method: post
           cors: true
   modifyAlgorithem:
-    handler: src/handler.modifyAlogirithemContent
+    handler: src/handler.modifyAlgorithem
     events:
       - http:
           path: post/{id}/modify
@@ -87,6 +87,20 @@ functions:
       - http:
           path: post/{id}/delete
           method: delete
+          cors: true
+  getAlgorithemRules:
+    handler: src/handler.getAlgorithemRules
+    events:
+      - http:
+          path: post/rule
+          method: get
+          cors: true
+  getAlgorithemRulesForWeb:
+    handler: src/handler.getAlgorithemRulesForWeb
+    events:
+      - http:
+          path: post/rule/web
+          method: get
           cors: true
   auth:
     handler: src/handler.authAdmin
