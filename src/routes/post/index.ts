@@ -11,6 +11,7 @@ import { AlgorithemService } from "../../service";
 import { connectOptions } from "../../util/mongodb";
 import { createRes, createErrorRes } from "../../util/serverless";
 import { rules, bold15, ruleForWeb, bold13 } from "../../config/rule";
+import { isNumeric } from "../../util/number";
 
 class Algorithem {
   static async getAlgorithemCountAtAll(
@@ -48,6 +49,10 @@ class Algorithem {
     // get parameter
     const { count, cursor, status } = event.queryStringParameters;
 
+    // check parameter
+    if (status == AlgorithemDTO.PostStatus.Pending && isNumeric(cursor)) {
+      return createErrorRes({ status: 404, message: "잘못된 요청입니다." });
+    }
     //get algorithem list for return body value
     const body = await AlgorithemService.getAlgorithemList(
       {
