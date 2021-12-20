@@ -84,6 +84,10 @@ export const sendACCEPTEDAlgorithemMessage: Function = async (
     description: "새로운 알고리즘이 기다리고있습니다!",
     color: 1752220,
   });
+  await sendMessage(
+    process.env.DISCORD_MANAGEMENT_CHANNEL_ACCEPTED_WEBHOOK,
+    message
+  );
   await sendMessage(process.env.DISCORD_ACCEPTED_WEBHOOK, message);
 };
 
