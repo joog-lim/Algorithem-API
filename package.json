@@ -12,7 +12,7 @@
     "@typegoose/typegoose": "^8.2.0",
     "axios": "^0.21.2",
     "js-base64": "^3.6.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "5.13.8",
     "serverless-http": "^2.7.0"
   },
